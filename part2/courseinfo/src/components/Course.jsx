@@ -9,11 +9,20 @@ const Part = ({ part }) => (
     </p>
 );
 
+const Total = ({ total }) => <p>total of {total} exercises</p>;
+
 const Course = ({ course }) => {
     return (
         <>
             <Header course={course.name} />
             <Content parts={course.parts} />
+            <Total
+                total={
+                    course.parts[0].exercises +
+                    course.parts[1].exercises +
+                    course.parts[2].exercises
+                }
+            />
         </>
     );
 };
