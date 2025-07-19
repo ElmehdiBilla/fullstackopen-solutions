@@ -18,9 +18,7 @@ const Course = ({ course }) => {
             <Content parts={course.parts} />
             <Total
                 total={
-                    course.parts[0].exercises +
-                    course.parts[1].exercises +
-                    course.parts[2].exercises
+                    course.parts.reduce((sum,p) => sum + p.exercises , 0)
                 }
             />
         </>
