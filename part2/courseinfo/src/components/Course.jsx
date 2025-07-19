@@ -1,15 +1,6 @@
-const Header = ({ course }) => <h1>{course}</h1>;
-
-const Content = ({ parts }) =>
-    parts.map((part, i) => <Part key={i} part={part} />);
-
-const Part = ({ part }) => (
-    <p>
-        {part.name} {part.exercises}
-    </p>
-);
-
-const Total = ({ total }) => <p>total of {total} exercises</p>;
+import Header from "./Header";
+import Content from "./content";
+import Total from "./Total";
 
 const Course = ({ course }) => {
     return (
