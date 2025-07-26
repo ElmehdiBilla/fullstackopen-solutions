@@ -1,7 +1,7 @@
 const Person = ({name, number, onDelete}) => {
     return (
         <p>
-            {name} {number} 
+            {name} {number}
             <button 
                 onClick={onDelete}
                 onMouseEnter={(e) => {e.target.style.backgroundColor='#0000ff'}}

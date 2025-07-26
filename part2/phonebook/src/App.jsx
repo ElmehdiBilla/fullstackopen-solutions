@@ -42,23 +42,22 @@ const App = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        let isExist = false;
-        persons.forEach((person) => {
-        if(person.name.toLowerCase() === newName.toLowerCase() && person.number === newNumber){
-            isExist=true;
-        }
-        });
-        if(isExist) {
-            alert(`${newName} is already added to phonebook`);
+        const person = persons.find(p => p.name.toLowerCase() === newName.toLowerCase())
+
+        if(person) {
+            if(confirm(`${newName} is already added to phonebook, replace the old number with a new one`)){
+                const changedPerson = {...person, number:newNumber}
+                personService
+                .update(person.id,changedPerson)
+                .then(returnedPerson => {
+                    setPersons(persons.map((p) => (p.id !== person.id ? p : returnedPerson)))
+                })
+            }
             return;
-        }
-        const personObject = {
-            name: newName, 
-            number:newNumber
         }
 
         personService
-        .create(personObject)
+        .create({name: newName, number:newNumber})
         .then(returnedPerson => {
             setPersons([...persons, returnedPerson]);
             setNewName('');

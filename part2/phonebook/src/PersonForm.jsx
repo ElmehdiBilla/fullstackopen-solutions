@@ -8,7 +8,11 @@ const PersonForm = ({nameValue , numberValue, onSubmit, onNameChange , onNumberC
                 number: <input value={numberValue} onChange={onNumberChange} />
             </div>
             <div>
-                <button type="submit">add</button>
+                <button 
+                    type="submit"
+                    onMouseEnter={(e) => {e.target.style.backgroundColor='#0000ff'}}
+                    onMouseOut={(e) => {e.target.style.backgroundColor=''}}
+                >add</button>
             </div>
         </form>
     );
