@@ -40,8 +40,18 @@ const App = () => {
             alert(`${newName} is already added to phonebook`);
             return;
         }
-        setPersons([...persons, {id:persons.length + 1 , name: newName , number:newNumber}]);
-    };
+        const personObject = {
+            name: newName, 
+            number:newNumber
+        }
+
+        axios.post('http://localhost:3001/persons',personObject)
+        .then(response => {
+            setPersons([...persons, response.data]);
+            setNewName('');
+            setNewNumber('');
+        })
+        };
 
     const handleFilter = (e) => {
         setShowAll(false);
