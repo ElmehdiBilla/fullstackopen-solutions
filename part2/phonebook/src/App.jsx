@@ -12,6 +12,7 @@ const App = () => {
     const [filter, setFilter] = useState("");
     const [showAll, setShowAll] = useState(true);
     const [message, setMessage] = useState(null)
+    const [messageType, setMessageType] = useState('success')
 
     useEffect(
         () => {
@@ -54,6 +55,14 @@ const App = () => {
                 .then(returnedPerson => {
                     setPersons(persons.map((p) => (p.id !== person.id ? p : returnedPerson)))
                     setMessage(`changed ${returnedPerson.number}`)
+                    setMessageType('success')
+                    setTimeout(() => {
+                        setMessage(null)
+                    }, 5000)
+                })
+                .catch(error => {
+                    setMessage(`Information of ${person.name} has already been removed from server`)
+                    setMessageType('error')
                     setTimeout(() => {
                         setMessage(null)
                     }, 5000)
@@ -69,6 +78,7 @@ const App = () => {
             setNewName('');
             setNewNumber('');
             setMessage(`Added ${returnedPerson.name}`)
+            setMessageType('success')
             setTimeout(() => {
                 setMessage(null)
             }, 5000)
@@ -88,7 +98,7 @@ const App = () => {
         <div>
             <h2>Phonebook</h2>
 
-            <Notification  message={message}/>
+            <Notification  message={message} messageType={messageType}/>
 
             <Filter value={filter} onChange={handleFilter} />
             
