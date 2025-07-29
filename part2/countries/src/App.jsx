@@ -23,6 +23,10 @@ function App() {
     setCountries(data.filter(c => c.name.common.toLowerCase().includes(search.toLowerCase())))
   }
 
+  const handleClick = (name) => {
+    setCountries(data.filter(c => c.name.common.toLowerCase() === name.toLowerCase()))
+  }
+
 
   return (
     <>
@@ -35,7 +39,7 @@ function App() {
           countries.length === 1 ? 
           <Country data={countries[0]}/>
           :
-          <Countries data={countries}/>
+          <Countries data={countries} onClick={handleClick}/>
         )
       }
     </>
