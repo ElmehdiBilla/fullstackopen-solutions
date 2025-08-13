@@ -25,8 +25,17 @@ let persons = [
     },
 ];
 
-app.use(morgan("tiny"))
 app.use(express.json())
+
+morgan.token('body', (req) => JSON.stringify(req.body));
+
+app.use((req, res, next) => {
+    if (req.method === 'POST') {
+        return morgan(":method :url :status :res[content-length] - :response-time ms :body")(req, res, next);
+    }
+    return morgan("tiny")(req, res, next);
+});
+
 
 app.get('/api/persons', (request, response) => {
     response.json(persons)
