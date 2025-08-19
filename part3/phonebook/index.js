@@ -29,21 +29,23 @@ app.get('/api/persons', (request, response) => {
 
 app.get('/api/info', (request, response) => {
     const date = new Date();
-    response.send(
-        `
-        <p>Phonebook has info for ${persons.length} people</p>
-        <p>${date}</p>
-        `
-    )
+    Person.find({}).then(persons => {
+        response.send(
+            `
+            <p>Phonebook has info for ${persons.length} people</p>
+            <p>${date}</p>
+            `
+        )
+    })
 })
 
 app.get('/api/persons/:id',(request, response) => {
     const id = request.params.id
-    const person = persons.find((p) => p.id === id)
-    if(!person){
-        response.status(404).end()
-    }
-    response.json(person)
+    Person.findById(id)
+        .then(persons => {
+            return response.json(persons)
+        })
+        .catch(err => response.status(404).end())
 })
 
 app.delete('/api/persons/:id',(request, response) => {
@@ -51,10 +53,6 @@ app.delete('/api/persons/:id',(request, response) => {
     persons = [...persons.filter((p) => p.id !== id)]
     response.status(204).end()
 })
-
-const generateId = () => {
-    return Math.floor(Math.random() * 1000000) + persons.length
-}
 
 app.post('/api/persons', (request, response) => {
     const body = request.body;
@@ -71,19 +69,14 @@ app.post('/api/persons', (request, response) => {
         })
     }
 
-    if(persons.some(p => p.name.toLowerCase() === body.name.toLowerCase())){
-        return response.status(400).json({
-            error: 'name must be unique',
+    const newPerson =  new Person({
+            name:body.name,
+            number:body.number
         })
-    }
 
-    const person = {
-        id: generateId(),
-        name: body.name,
-        number: body.number,
-    }
-    persons = [...persons,person]
-    response.json(person)
+    newPerson.save().then(savedPerson => {
+        return response.json(savedPerson)
+    })
 })
 
 const PORT = process.env.PORT
