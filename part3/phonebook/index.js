@@ -101,6 +101,19 @@ app.post("/api/persons", (request, response) => {
     });
 });
 
+app.put("/api/persons/:id", (request, response) => {
+    const body = request.body;
+    Person.findById(body.id)
+    .then(returnedPerson => {
+        returnedPerson.number=body.number
+        returnedPerson.save()
+        return response.json(returnedPerson);
+    })
+    .catch(err => {
+        return response.status(404).end();
+    })
+});
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
