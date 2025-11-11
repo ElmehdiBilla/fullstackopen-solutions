@@ -83,6 +83,13 @@ const App = () => {
                 setMessage(null)
             }, 5000)
         })
+        .catch(error => {
+            setMessage(error.response.data)
+            setMessageType('error')
+            setTimeout(() => {
+                setMessage(null)
+            }, 5000)
+        })
     };
 
     const handleFilter = (e) => {
