@@ -53,6 +53,17 @@ test("a blog can be added ", async () => {
     assert(title.includes("new Blog"));
 });
 
+test("if request missing (likes) property (0) will be the default value" , async () => {
+    const newBlog = {
+        title: "blog without likes property",
+        author: "Jhon doe",
+        url: "https://blogwithoutlikes.example/",
+    };
+
+    const response = await api.post("/api/blogs").send(newBlog).expect(201).expect("Content-Type", /application\/json/);
+    assert.strictEqual(response.body.likes, 0);
+})
+
 after(async () => {
     await mongoose.connection.close();
 });
