@@ -64,6 +64,24 @@ test("if request missing (likes) property (0) will be the default value" , async
     assert.strictEqual(response.body.likes, 0);
 })
 
+test("blog without title get 400 Bad Request", async () => {
+    const blogNoTitle = {
+        author: "Jhon doe",
+        url: "https://blogwithoutlikes.example/",
+    };
+
+    await api.post("/api/blogs").send(blogNoTitle).expect(400);
+});
+
+test("blog without url get 400 Bad Request", async () => {
+    const blogNoUrl = {
+        title: "blog without url",
+        author: "Jhon doe",
+    };
+
+    await api.post("/api/blogs").send(blogNoUrl).expect(400);
+});
+
 after(async () => {
     await mongoose.connection.close();
 });
