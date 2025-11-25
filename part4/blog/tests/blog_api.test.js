@@ -1,5 +1,5 @@
 const assert = require("node:assert");
-const { test, after, beforeEach , describe } = require("node:test");
+const { test, after, beforeEach, describe } = require("node:test");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
@@ -100,7 +100,7 @@ describe("deletion of a blog", () => {
     });
 
     test("invalid id format get 400 Bad Request", async () => {
-        const invalidId = '12345';
+        const invalidId = "12345";
 
         await api.delete(`/api/blogs/${invalidId}`).expect(400);
         const blogsAtEnd = await helper.blogsInDb();
@@ -115,6 +115,71 @@ describe("deletion of a blog", () => {
         const blogsAtEnd = await helper.blogsInDb();
 
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+    });
+});
+
+describe("updating a blog", () => {
+    test("blog likes can be updated", async () => {
+        const blogsAtStart = await helper.blogsInDb();
+        const blogToUpdate = blogsAtStart[0];
+        const likes = blogToUpdate.likes + 1;
+
+        await api
+            .put(`/api/blogs/${blogToUpdate.id}`)
+            .send({ likes })
+            .expect(200);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        const updatedBlog = blogsAtEnd[0];
+        assert.strictEqual(updatedBlog.likes, likes);
+    });
+
+    test("invalid id format get 400 Bad Request", async () => {
+        const invalidId = "12345";
+        const blogsAtStart = await helper.blogsInDb();
+        const blogToUpdate = blogsAtStart[0];
+        const likes = blogToUpdate.likes + 1;
+
+        await api.put(`/api/blogs/${invalidId}`).send({ likes }).expect(400);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        assert.strictEqual(blogToUpdate.likes, blogsAtEnd[0].likes);
+    });
+
+    test("blog does not exist get 404 Not Found", async () => {
+        const nonExistingId = new mongoose.Types.ObjectId().toString();
+
+        await api
+            .put(`/api/blogs/${nonExistingId}`)
+            .send({ likes: 0 })
+            .expect(404);
+    });
+
+    test("no update if likes is null", async () => {
+        const blogsAtStart = await helper.blogsInDb();
+        const blogToUpdate = blogsAtStart[0];
+
+        await api
+            .put(`/api/blogs/${blogToUpdate.id}`)
+            .send({})
+            .expect(200);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        assert.strictEqual(blogToUpdate.likes, blogsAtEnd[0].likes);
+    });
+
+    test("likes type not number get 400 Bad Request", async () => {
+        const blogsAtStart = await helper.blogsInDb();
+        const blogToUpdate = blogsAtStart[0];
+        const likes = "abc";
+
+        await api
+            .put(`/api/blogs/${blogToUpdate.id}`)
+            .send({ likes })
+            .expect(400);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        assert.strictEqual(blogToUpdate.likes, blogsAtEnd[0].likes);
     });
 });
 
