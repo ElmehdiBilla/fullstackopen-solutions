@@ -1,10 +1,10 @@
-const assert = require('node:assert');
-const { test, after, beforeEach } = require('node:test');
-const mongoose = require('mongoose');
-const supertest = require('supertest');
-const app = require('../app');
-const Blog = require('../models/blog');
-const helper = require('./test_helper');
+const assert = require("node:assert");
+const { test, after, beforeEach , describe } = require("node:test");
+const mongoose = require("mongoose");
+const supertest = require("supertest");
+const app = require("../app");
+const Blog = require("../models/blog");
+const helper = require("./test_helper");
 
 const api = supertest(app);
 
@@ -30,14 +30,14 @@ test("the unique identifier property of the blog posts is named id", async () =>
     const blog = blogs[0];
     assert(blog.id);
     assert(!blog._id);
-})
+});
 
 test("a blog can be added ", async () => {
     const newBlog = {
         title: "new Blog",
         author: "Jhon doe",
         url: "https://newblog.example/",
-        likes: 200
+        likes: 200,
     };
 
     await api
@@ -53,16 +53,20 @@ test("a blog can be added ", async () => {
     assert(title.includes("new Blog"));
 });
 
-test("if request missing (likes) property (0) will be the default value" , async () => {
+test("if request missing (likes) property (0) will be the default value", async () => {
     const newBlog = {
         title: "blog without likes property",
         author: "Jhon doe",
         url: "https://blogwithoutlikes.example/",
     };
 
-    const response = await api.post("/api/blogs").send(newBlog).expect(201).expect("Content-Type", /application\/json/);
+    const response = await api
+        .post("/api/blogs")
+        .send(newBlog)
+        .expect(201)
+        .expect("Content-Type", /application\/json/);
     assert.strictEqual(response.body.likes, 0);
-})
+});
 
 test("blog without title get 400 Bad Request", async () => {
     const blogNoTitle = {
@@ -80,6 +84,38 @@ test("blog without url get 400 Bad Request", async () => {
     };
 
     await api.post("/api/blogs").send(blogNoUrl).expect(400);
+});
+
+describe("deletion of a blog", () => {
+    test("a blog can be deleted", async () => {
+        const blogsAtStart = await helper.blogsInDb();
+        const blogToDelete = blogsAtStart[0];
+
+        await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+        const blogsAtEnd = await helper.blogsInDb();
+        const ids = blogsAtEnd.map((b) => b.id);
+
+        assert(!ids.includes(blogToDelete.id));
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1);
+    });
+
+    test("invalid id format get 400 Bad Request", async () => {
+        const invalidId = '12345';
+
+        await api.delete(`/api/blogs/${invalidId}`).expect(400);
+        const blogsAtEnd = await helper.blogsInDb();
+
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+    });
+
+    test("blog does not exist get 404 Not Found", async () => {
+        const nonExistingId = new mongoose.Types.ObjectId().toString();
+
+        await api.delete(`/api/blogs/${nonExistingId}`).expect(404);
+        const blogsAtEnd = await helper.blogsInDb();
+
+        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+    });
 });
 
 after(async () => {
