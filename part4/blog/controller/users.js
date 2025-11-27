@@ -10,6 +10,34 @@ usersRouter.get("/", async (request, response) => {
 usersRouter.post("/", async (request, response) => {
     const { username, name, password } = request.body;
 
+    if (!username) {
+        return response
+            .status(400)
+            .json({ error: "the `username` is required" });
+    }
+
+    if (username.length < 3) {
+        return response
+            .status(400)
+            .json({
+                error: "the `username` must be at least 3 characters long.",
+            });
+    }
+
+    if (!password) {
+        return response
+            .status(400)
+            .json({ error: "the `password` is required" });
+    }
+
+    if (password.length < 3) {
+        return response
+            .status(400)
+            .json({
+                error: "the `password` must be at least 3 characters long.",
+            });
+    }
+
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
@@ -20,7 +48,7 @@ usersRouter.post("/", async (request, response) => {
     });
 
     const savedUser = await user.save();
-    
+
     response.status(201).json(savedUser);
 });
 

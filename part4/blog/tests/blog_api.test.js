@@ -187,7 +187,11 @@ describe("when there is initially one user in db", () => {
         await User.deleteMany({});
 
         const passwordHash = await bcrypt.hash("password", 10);
-        const user = new User({ username: "billa", name: "Elmehdi Billa", passwordHash });
+        const user = new User({
+            username: "billa",
+            name: "Elmehdi Billa",
+            passwordHash,
+        });
 
         await user.save();
     });
@@ -220,6 +224,114 @@ describe("when there is initially one user in db", () => {
             .expect(200)
             .expect("Content-Type", /application\/json/);
     });
+
+    describe("creation fails with proper statuscode and message",() => {
+
+        test("if username already taken", async () => {
+            const usersAtStart = await helper.usersInDb();
+    
+            const newUser = {
+                username: "billa",
+                name: "Superuser",
+                password: "password",
+            };
+    
+            const result = await api
+                .post("/api/users")
+                .send(newUser)
+                .expect(400)
+                .expect("Content-Type", /application\/json/);
+    
+            const usersAtEnd = await helper.usersInDb();
+            assert(result.body.error.includes("expected `username` to be unique"));
+    
+            assert.strictEqual(usersAtEnd.length, usersAtStart.length);
+        });
+    
+        test("if username not sent", async () => {
+            const usersAtStart = await helper.usersInDb();
+    
+            const newUser = {
+                name: "Jhon Doe",
+                password: "pass123",
+            };
+    
+            const result = await api
+                .post("/api/users")
+                .send(newUser)
+                .expect(400)
+                .expect("Content-Type", /application\/json/);
+    
+            const usersAtEnd = await helper.usersInDb();
+            assert(result.body.error.includes("the `username` is required"));
+    
+            assert.strictEqual(usersAtEnd.length, usersAtStart.length);
+        });
+
+        test("if username is less than 3 characters", async () => {
+            const usersAtStart = await helper.usersInDb();
+    
+            const newUser = {
+                username:"jh",
+                name: "Jhon Doe",
+                password: "pass123",
+            };
+    
+            const result = await api
+                .post("/api/users")
+                .send(newUser)
+                .expect(400)
+                .expect("Content-Type", /application\/json/);
+    
+            const usersAtEnd = await helper.usersInDb();
+            assert(result.body.error.includes("the `username` must be at least 3 characters long."));
+    
+            assert.strictEqual(usersAtEnd.length, usersAtStart.length);
+        });
+    
+        test("if password not sent", async () => {
+            const usersAtStart = await helper.usersInDb();
+    
+            const newUser = {
+                username:"jhon",
+                name: "Jhon Doe",
+            };
+    
+            const result = await api
+                .post("/api/users")
+                .send(newUser)
+                .expect(400)
+                .expect("Content-Type", /application\/json/);
+    
+            const usersAtEnd = await helper.usersInDb();
+            assert(result.body.error.includes("the `password` is required"));
+    
+            assert.strictEqual(usersAtEnd.length, usersAtStart.length);
+        });
+
+        test("if password is less than 3 characters", async () => {
+            const usersAtStart = await helper.usersInDb();
+    
+            const newUser = {
+                username:"jhon",
+                name: "Jhon Doe",
+                password: "pa",
+            };
+    
+            const result = await api
+                .post("/api/users")
+                .send(newUser)
+                .expect(400)
+                .expect("Content-Type", /application\/json/);
+    
+            const usersAtEnd = await helper.usersInDb();
+            assert(result.body.error.includes("the `password` must be at least 3 characters long."));
+    
+            assert.strictEqual(usersAtEnd.length, usersAtStart.length);
+        });
+
+    })
+
 });
 
 after(async () => {
