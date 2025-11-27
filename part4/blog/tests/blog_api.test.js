@@ -5,6 +5,8 @@ const supertest = require("supertest");
 const app = require("../app");
 const Blog = require("../models/blog");
 const helper = require("./test_helper");
+const bcrypt = require("bcrypt");
+const User = require("../models/user");
 
 const api = supertest(app);
 
@@ -159,10 +161,7 @@ describe("updating a blog", () => {
         const blogsAtStart = await helper.blogsInDb();
         const blogToUpdate = blogsAtStart[0];
 
-        await api
-            .put(`/api/blogs/${blogToUpdate.id}`)
-            .send({})
-            .expect(200);
+        await api.put(`/api/blogs/${blogToUpdate.id}`).send({}).expect(200);
 
         const blogsAtEnd = await helper.blogsInDb();
         assert.strictEqual(blogToUpdate.likes, blogsAtEnd[0].likes);
@@ -180,6 +179,46 @@ describe("updating a blog", () => {
 
         const blogsAtEnd = await helper.blogsInDb();
         assert.strictEqual(blogToUpdate.likes, blogsAtEnd[0].likes);
+    });
+});
+
+describe("when there is initially one user in db", () => {
+    beforeEach(async () => {
+        await User.deleteMany({});
+
+        const passwordHash = await bcrypt.hash("password", 10);
+        const user = new User({ username: "billa", name: "Elmehdi Billa", passwordHash });
+
+        await user.save();
+    });
+
+    test("creation succeeds with a fresh username", async () => {
+        const usersAtStart = await helper.usersInDb();
+
+        const newUser = {
+            username: "Jhon",
+            name: "Jhon Doe",
+            password: "pass123",
+        };
+
+        await api
+            .post("/api/users")
+            .send(newUser)
+            .expect(201)
+            .expect("Content-Type", /application\/json/);
+
+        const usersAtEnd = await helper.usersInDb();
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1);
+
+        const usernames = usersAtEnd.map((u) => u.username);
+        assert(usernames.includes(newUser.username));
+    });
+
+    test("Users are returned as json", async () => {
+        await api
+            .get("/api/users")
+            .expect(200)
+            .expect("Content-Type", /application\/json/);
     });
 });
 
