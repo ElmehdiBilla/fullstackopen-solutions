@@ -44,17 +44,39 @@ blogsRouter.post("/", async (request, response) => {
 });
 
 blogsRouter.delete("/:id", async (request, response) => {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
+
+    if (!decodedToken.id) {
+        return response.status(401).json({ error: "not authorized" });
+    }
+
+    const user = await User.findById(decodedToken.id);
+
+    if (!user) {
+        return response
+            .status(401)
+            .json({ error: "not authorized" });
+    }
+
     const id = request.params.id;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return response.status(400).json({ error: "invalid id format" });
     }
 
-    const deleteBlog = await Blog.findByIdAndDelete(request.params.id);
+    const deleteBlog = await Blog.findById(request.params.id);
 
     if (!deleteBlog) {
         return response.status(404).json({ error: "blog not found" });
     }
+
+    if (deleteBlog.user.toString() !== user._id.toString()) {
+        return response
+            .status(401)
+            .json({ error: "not authorized" });
+    }
+
+    await deleteBlog.deleteOne();
 
     return response.status(204).end();
 });
