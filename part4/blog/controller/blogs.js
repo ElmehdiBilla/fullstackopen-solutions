@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
-const jwt = require("jsonwebtoken");
+const { userExtractor } = require("../utils/middleware");
 
 blogsRouter.get("/", async (request, response) => {
     const blogs = await Blog.find({}).populate("user", {
@@ -12,16 +12,8 @@ blogsRouter.get("/", async (request, response) => {
     response.json(blogs);
 });
 
-blogsRouter.post("/", async (request, response) => {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET);
-
-    if (!decodedToken.id) {
-        return response.status(401).json({ error: "token invalid" });
-    }
-
-    const user = await User.findById(decodedToken.id);
-
-    if (!user) {
+blogsRouter.post("/", userExtractor, async (request, response) => {
+    if (!request.user.id) {
         return response
             .status(400)
             .json({ error: "UserId missing or not valid" });
@@ -33,6 +25,7 @@ blogsRouter.post("/", async (request, response) => {
         return response.status(400).json({ error: "url is missing" });
     }
 
+    const user = await User.findById(request.user.id);
     const blog = new Blog(request.body);
     blog.user = user._id;
 
@@ -43,14 +36,8 @@ blogsRouter.post("/", async (request, response) => {
     response.status(201).json(savedBlog);
 });
 
-blogsRouter.delete("/:id", async (request, response) => {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET);
-
-    if (!decodedToken.id) {
-        return response.status(401).json({ error: "not authorized" });
-    }
-
-    const user = await User.findById(decodedToken.id);
+blogsRouter.delete("/:id", userExtractor, async (request, response) => {
+    const user = request.user;
 
     if (!user) {
         return response
@@ -70,7 +57,7 @@ blogsRouter.delete("/:id", async (request, response) => {
         return response.status(404).json({ error: "blog not found" });
     }
 
-    if (deleteBlog.user.toString() !== user._id.toString()) {
+    if (deleteBlog.user.toString() !== user.id.toString()) {
         return response
             .status(401)
             .json({ error: "not authorized" });
