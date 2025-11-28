@@ -10,9 +10,30 @@ const User = require("../models/user");
 
 const api = supertest(app);
 
+const login = async (user) => {
+    const response = await api.post("/api/login").send(user);
+
+    return response.body;
+};
+
+const createBlogWithUser = async (blog, user) => {
+    const logedUser = await login(user);
+
+    const response = await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${logedUser.token}`)
+        .send(blog)
+        .expect(201)
+        .expect("Content-Type", /application\/json/);
+
+    return { blog: response.body, user: logedUser };
+};
+
 beforeEach(async () => {
     await Blog.deleteMany({});
     await Blog.insertMany(helper.initialBlogs);
+    await User.deleteMany({});
+    await api.post("/api/users").send(helper.testUser);
 });
 
 test("blogs are returned as json", async () => {
@@ -35,6 +56,8 @@ test("the unique identifier property of the blog posts is named id", async () =>
 });
 
 test("a blog can be added ", async () => {
+    const logedUser = await login(helper.testUser);
+
     const newBlog = {
         title: "new Blog",
         author: "Jhon doe",
@@ -44,6 +67,7 @@ test("a blog can be added ", async () => {
 
     await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${logedUser.token}`)
         .send(newBlog)
         .expect(201)
         .expect("Content-Type", /application\/json/);
@@ -56,6 +80,8 @@ test("a blog can be added ", async () => {
 });
 
 test("if request missing (likes) property (0) will be the default value", async () => {
+    const logedUser = await login(helper.testUser);
+
     const newBlog = {
         title: "blog without likes property",
         author: "Jhon doe",
@@ -64,56 +90,113 @@ test("if request missing (likes) property (0) will be the default value", async 
 
     const response = await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${logedUser.token}`)
         .send(newBlog)
         .expect(201)
         .expect("Content-Type", /application\/json/);
+
     assert.strictEqual(response.body.likes, 0);
 });
 
 test("blog without title get 400 Bad Request", async () => {
+    const logedUser = await login(helper.testUser);
+
     const blogNoTitle = {
         author: "Jhon doe",
         url: "https://blogwithoutlikes.example/",
     };
 
-    await api.post("/api/blogs").send(blogNoTitle).expect(400);
+    await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${logedUser.token}`)
+        .send(blogNoTitle)
+        .expect(400);
 });
 
 test("blog without url get 400 Bad Request", async () => {
+    const logedUser = await login(helper.testUser);
+
     const blogNoUrl = {
         title: "blog without url",
         author: "Jhon doe",
     };
 
-    await api.post("/api/blogs").send(blogNoUrl).expect(400);
+    await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${logedUser.token}`)
+        .send(blogNoUrl)
+        .expect(400);
+});
+
+test("adding a blog fails with the proper status code 401 Unauthorized if a token is not provided", async () => {
+    const newBlog = {
+        title: "new Blog",
+        author: "Jhon doe",
+        url: "https://newblog.example/",
+        likes: 200,
+    };
+
+    await api
+        .post("/api/blogs")
+        .send(newBlog)
+        .expect(401)
+        .expect("Content-Type", /application\/json/);
+
+    const blogsAtEnd = await helper.blogsInDb();
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
 });
 
 describe("deletion of a blog", () => {
     test("a blog can be deleted", async () => {
-        const blogsAtStart = await helper.blogsInDb();
-        const blogToDelete = blogsAtStart[0];
+        const blogWithUser = await createBlogWithUser(
+            {
+                title: "blog for test user",
+                author: "Test User",
+                url: "https://newblog.example/",
+                likes: 200,
+            },
+            helper.testUser
+        );
 
-        await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+        const blogsAtStart = await helper.blogsInDb();
+        const blogToDelete = blogWithUser.blog.id;
+        const token = blogWithUser.user.token;
+
+        await api
+            .delete(`/api/blogs/${blogToDelete}`)
+            .set("Authorization", `Bearer ${token}`)
+            .expect(204);
+
         const blogsAtEnd = await helper.blogsInDb();
         const ids = blogsAtEnd.map((b) => b.id);
 
-        assert(!ids.includes(blogToDelete.id));
-        assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1);
+        assert(!ids.includes(blogToDelete));
+        assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1);
     });
 
     test("invalid id format get 400 Bad Request", async () => {
+        const logedUser = await login(helper.testUser);
         const invalidId = "12345";
 
-        await api.delete(`/api/blogs/${invalidId}`).expect(400);
+        await api
+            .delete(`/api/blogs/${invalidId}`)
+            .set("Authorization", `Bearer ${logedUser.token}`)
+            .expect(400);
+
         const blogsAtEnd = await helper.blogsInDb();
 
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
     });
 
     test("blog does not exist get 404 Not Found", async () => {
+        const logedUser = await login(helper.testUser);
         const nonExistingId = new mongoose.Types.ObjectId().toString();
 
-        await api.delete(`/api/blogs/${nonExistingId}`).expect(404);
+        await api
+            .delete(`/api/blogs/${nonExistingId}`)
+            .set("Authorization", `Bearer ${logedUser.token}`)
+            .expect(404);
+
         const blogsAtEnd = await helper.blogsInDb();
 
         assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
@@ -225,113 +308,120 @@ describe("when there is initially one user in db", () => {
             .expect("Content-Type", /application\/json/);
     });
 
-    describe("creation fails with proper statuscode and message",() => {
-
+    describe("creation fails with proper statuscode and message", () => {
         test("if username already taken", async () => {
             const usersAtStart = await helper.usersInDb();
-    
+
             const newUser = {
                 username: "billa",
                 name: "Superuser",
                 password: "password",
             };
-    
+
             const result = await api
                 .post("/api/users")
                 .send(newUser)
                 .expect(400)
                 .expect("Content-Type", /application\/json/);
-    
+
             const usersAtEnd = await helper.usersInDb();
-            assert(result.body.error.includes("expected `username` to be unique"));
-    
+            assert(
+                result.body.error.includes("expected `username` to be unique")
+            );
+
             assert.strictEqual(usersAtEnd.length, usersAtStart.length);
         });
-    
+
         test("if username not sent", async () => {
             const usersAtStart = await helper.usersInDb();
-    
+
             const newUser = {
                 name: "Jhon Doe",
                 password: "pass123",
             };
-    
+
             const result = await api
                 .post("/api/users")
                 .send(newUser)
                 .expect(400)
                 .expect("Content-Type", /application\/json/);
-    
+
             const usersAtEnd = await helper.usersInDb();
             assert(result.body.error.includes("the `username` is required"));
-    
+
             assert.strictEqual(usersAtEnd.length, usersAtStart.length);
         });
 
         test("if username is less than 3 characters", async () => {
             const usersAtStart = await helper.usersInDb();
-    
+
             const newUser = {
-                username:"jh",
+                username: "jh",
                 name: "Jhon Doe",
                 password: "pass123",
             };
-    
+
             const result = await api
                 .post("/api/users")
                 .send(newUser)
                 .expect(400)
                 .expect("Content-Type", /application\/json/);
-    
+
             const usersAtEnd = await helper.usersInDb();
-            assert(result.body.error.includes("the `username` must be at least 3 characters long."));
-    
+            assert(
+                result.body.error.includes(
+                    "the `username` must be at least 3 characters long."
+                )
+            );
+
             assert.strictEqual(usersAtEnd.length, usersAtStart.length);
         });
-    
+
         test("if password not sent", async () => {
             const usersAtStart = await helper.usersInDb();
-    
+
             const newUser = {
-                username:"jhon",
+                username: "jhon",
                 name: "Jhon Doe",
             };
-    
+
             const result = await api
                 .post("/api/users")
                 .send(newUser)
                 .expect(400)
                 .expect("Content-Type", /application\/json/);
-    
+
             const usersAtEnd = await helper.usersInDb();
             assert(result.body.error.includes("the `password` is required"));
-    
+
             assert.strictEqual(usersAtEnd.length, usersAtStart.length);
         });
 
         test("if password is less than 3 characters", async () => {
             const usersAtStart = await helper.usersInDb();
-    
+
             const newUser = {
-                username:"jhon",
+                username: "jhon",
                 name: "Jhon Doe",
                 password: "pa",
             };
-    
+
             const result = await api
                 .post("/api/users")
                 .send(newUser)
                 .expect(400)
                 .expect("Content-Type", /application\/json/);
-    
+
             const usersAtEnd = await helper.usersInDb();
-            assert(result.body.error.includes("the `password` must be at least 3 characters long."));
-    
+            assert(
+                result.body.error.includes(
+                    "the `password` must be at least 3 characters long."
+                )
+            );
+
             assert.strictEqual(usersAtEnd.length, usersAtStart.length);
         });
-
-    })
-
+    });
 });
 
 after(async () => {
