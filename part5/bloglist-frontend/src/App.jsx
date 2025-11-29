@@ -9,7 +9,8 @@ const App = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [user, setUser] = useState(null);
-    const [errorMessage, setErrorMessage] = useState(null);
+    const [message, setMessage] = useState(null);
+    const [error, setError] = useState(false);
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
     const [url, setUrl] = useState("");
@@ -27,7 +28,14 @@ const App = () => {
         }
     }, []);
 
-    const addBlog = (event) => {
+    const removeNotification = (ms = 0) => {
+      setTimeout(() => {
+          setError(false);
+          setMessage(null);
+      }, ms);
+    };
+
+    const addBlog = async (event) => {
         event.preventDefault();
         const blog = {
             title,
@@ -35,12 +43,19 @@ const App = () => {
             url,
         };
 
-        blogService.create(blog).then((returnedBlog) => {
+        try {
+            const returnedBlog  = await blogService.create(blog);
             setBlogs(blogs.concat(returnedBlog));
             setTitle("");
             setAuthor("");
             setUrl("");
-        });
+            setMessage(`a new blog ${returnedBlog.title} added`);
+            removeNotification(5000);
+        } catch (error) {
+            setError(true);
+            setMessage(error.response.data.error);
+            removeNotification(5000)
+        }
     };
 
     const handleLogin = async (event) => {
@@ -53,11 +68,10 @@ const App = () => {
             setUser(user);
             setUsername("");
             setPassword("");
-        } catch {
-            setErrorMessage("wrong credentials");
-            setTimeout(() => {
-                setErrorMessage(null);
-            }, 5000);
+        } catch (error) {
+            setError(true);
+            setMessage(error.response.data.error);
+            removeNotification(5000)
         }
     };
 
@@ -132,7 +146,7 @@ const App = () => {
 
     return (
         <div>
-            <Notification message={errorMessage} />
+            <Notification message={message} error={error} />
 
             {!user && loginForm()}
 
