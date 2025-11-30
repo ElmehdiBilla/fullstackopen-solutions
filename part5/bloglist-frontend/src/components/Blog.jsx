@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 const Blog = ({ blog, updateBlog, deleteBlog }) => {
     const [visible, setVisible] = useState(false);
@@ -6,7 +6,7 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
     const blogStyle = {
         paddingTop: 10,
         paddingLeft: 2,
-        border: "solid",
+        border: 'solid',
         borderWidth: 1,
         borderRadius: 3,
         marginTop: 5,
@@ -14,8 +14,8 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
     };
 
     const deleteBtn = {
-        backgroundColor: "#f55",
-        borderColor: "#f00",
+        backgroundColor: '#f55',
+        borderColor: '#f00',
         borderRadius: 3,
         borderWidth: 1,
     };
@@ -43,7 +43,7 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
                 {blog.title}
                 &nbsp;
                 <button onClick={() => setVisible(!visible)}>
-                    {visible ? "hide" : "view"}
+                    {visible ? 'hide' : 'view'}
                 </button>
                 {visible && (
                     <div>

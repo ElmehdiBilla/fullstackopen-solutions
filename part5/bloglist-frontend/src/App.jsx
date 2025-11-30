@@ -1,15 +1,15 @@
-import { useState, useEffect, useRef } from "react";
-import Blog from "./components/Blog";
-import blogService from "./services/blogs";
-import loginService from "./services/login";
-import Notification from "./components/Notification";
-import Togglable from "./components/Togglable";
-import BlogForm from "./components/BlogForm";
+import { useState, useEffect, useRef } from 'react';
+import Blog from './components/Blog';
+import blogService from './services/blogs';
+import loginService from './services/login';
+import Notification from './components/Notification';
+import Togglable from './components/Togglable';
+import BlogForm from './components/BlogForm';
 
 const App = () => {
     const [blogs, setBlogs] = useState([]);
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const [user, setUser] = useState(null);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(false);
@@ -22,7 +22,7 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        const loggedUserJSON = window.localStorage.getItem("loggedUser");
+        const loggedUserJSON = window.localStorage.getItem('loggedUser');
         if (loggedUserJSON) {
             const user = JSON.parse(loggedUserJSON);
             blogService.setToken(user.token);
@@ -48,9 +48,9 @@ const App = () => {
         try {
             const returnedBlog = await blogService.create(blog);
             /*
-                we add the username to the returned blog 
-                because the backend (POST) only return the id of the user 
-                and the user logged does not have id field 
+                we add the username to the returned blog
+                because the backend (POST) only return the id of the user
+                and the user logged does not have id field
             */
             returnedBlog.user = {
                 username: user.username,
@@ -69,7 +69,7 @@ const App = () => {
             setBlogs(
                 blogs.map((b) => (b.id === returnedBlog.id ? returnedBlog : b))
             );
-            showMessage(`the blog likes is updated`);
+            showMessage('the blog likes is updated');
         } catch (error) {
             showMessage(error.response.data.error, true);
         }
@@ -79,7 +79,7 @@ const App = () => {
         try {
             await blogService.deleteBlog(id);
             setBlogs(blogs.filter((b) => b.id !== id));
-            showMessage(`the blog is deleted`);
+            showMessage('the blog is deleted');
         } catch (error) {
             showMessage(error.response.data.error, true);
         }
@@ -90,18 +90,18 @@ const App = () => {
 
         try {
             const user = await loginService.login({ username, password });
-            window.localStorage.setItem("loggedUser", JSON.stringify(user));
+            window.localStorage.setItem('loggedUser', JSON.stringify(user));
             blogService.setToken(user.token);
             setUser(user);
-            setUsername("");
-            setPassword("");
+            setUsername('');
+            setPassword('');
         } catch (error) {
             showMessage(error.response.data.error, true);
         }
     };
 
     const handleLogout = () => {
-        window.localStorage.removeItem("loggedUser");
+        window.localStorage.removeItem('loggedUser');
         window.location.reload();
     };
 
@@ -148,7 +148,7 @@ const App = () => {
                 <div>
                     <h2>blogs</h2>
                     <p>
-                        {user.name} logged in{" "}
+                        {user.name} logged in{' '}
                         <button onClick={handleLogout}>logout</button>
                     </p>
                     {blogForm()}
