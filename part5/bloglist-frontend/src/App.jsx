@@ -17,7 +17,7 @@ const App = () => {
 
     useEffect(() => {
         blogService.getAll().then((blogs) => {
-            setBlogs([...blogs].sort((bA,bB) => bB.likes - bA.likes));
+            setBlogs([...blogs].sort((bA, bB) => bB.likes - bA.likes));
         });
     }, []);
 
@@ -47,6 +47,15 @@ const App = () => {
         blogFormRef.current.toggleVisibility();
         try {
             const returnedBlog = await blogService.create(blog);
+            /*
+                we add the username to the returned blog 
+                because the backend (POST) only return the id of the user 
+                and the user logged does not have id field 
+            */
+            returnedBlog.user = {
+                username: user.username,
+                name: user.name,
+            };
             setBlogs(blogs.concat(returnedBlog));
             showMessage(`a new blog ${returnedBlog.title} added`);
         } catch (error) {
@@ -61,6 +70,16 @@ const App = () => {
                 blogs.map((b) => (b.id === returnedBlog.id ? returnedBlog : b))
             );
             showMessage(`the blog likes is updated`);
+        } catch (error) {
+            showMessage(error.response.data.error, true);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await blogService.deleteBlog(id);
+            setBlogs(blogs.filter((b) => b.id !== id));
+            showMessage(`the blog is deleted`);
         } catch (error) {
             showMessage(error.response.data.error, true);
         }
@@ -138,6 +157,11 @@ const App = () => {
                             key={blog.id}
                             blog={blog}
                             updateBlog={handleUpdate}
+                            deleteBlog={
+                                user?.username === blog?.user?.username
+                                    ? handleDelete
+                                    : null
+                            }
                         />
                     ))}
                 </div>

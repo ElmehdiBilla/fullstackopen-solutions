@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Blog = ({ blog, updateBlog }) => {
+const Blog = ({ blog, updateBlog, deleteBlog }) => {
     const [visible, setVisible] = useState(false);
 
     const blogStyle = {
@@ -11,6 +11,13 @@ const Blog = ({ blog, updateBlog }) => {
         borderRadius: 3,
         marginTop: 5,
         marginBottom: 5,
+    };
+
+    const deleteBtn = {
+        backgroundColor: "#f55",
+        borderColor: "#f00",
+        borderRadius: 3,
+        borderWidth: 1,
     };
 
     const handleLike = () => {
@@ -24,6 +31,12 @@ const Blog = ({ blog, updateBlog }) => {
         });
     };
 
+    const handleDelete = () => {
+        if (window.confirm(`remove ${blog.title} by ${blog.author}`)) {
+            deleteBlog(blog.id);
+        }
+    };
+
     return (
         <div style={blogStyle}>
             <div>
@@ -34,13 +47,18 @@ const Blog = ({ blog, updateBlog }) => {
                 </button>
                 {visible && (
                     <div>
-                        <a  href={blog.url}>{blog.url}</a>
+                        <a href={blog.url}>{blog.url}</a>
                         <div>
                             likes {blog.likes}
                             &nbsp;
                             <button onClick={handleLike}>like</button>
                         </div>
                         <div>{blog.author}</div>
+                        {deleteBlog && (
+                            <button style={deleteBtn} onClick={handleDelete}>
+                                delete
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
