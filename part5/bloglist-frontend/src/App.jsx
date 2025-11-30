@@ -13,7 +13,7 @@ const App = () => {
     const [user, setUser] = useState(null);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(false);
-    const blogFormRef =  useRef();
+    const blogFormRef = useRef();
 
     useEffect(() => {
         blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -35,17 +35,32 @@ const App = () => {
         }, ms);
     };
 
+    const showMessage = (msg, isError = false) => {
+        setMessage(msg);
+        setError(isError);
+        removeNotification(5000);
+    };
+
     const addBlog = async (blog) => {
         blogFormRef.current.toggleVisibility();
         try {
             const returnedBlog = await blogService.create(blog);
             setBlogs(blogs.concat(returnedBlog));
-            setMessage(`a new blog ${returnedBlog.title} added`);
-            removeNotification(5000);
+            showMessage(`a new blog ${returnedBlog.title} added`);
         } catch (error) {
-            setError(true);
-            setMessage(error.response.data.error);
-            removeNotification(5000);
+            showMessage(error.response.data.error, true);
+        }
+    };
+
+    const handleUpdate = async (blog) => {
+        try {
+            const returnedBlog = await blogService.update(blog.id, blog);
+            setBlogs(
+                blogs.map((b) => (b.id === returnedBlog.id ? returnedBlog : b))
+            );
+            showMessage(`the blog likes is updated`);
+        } catch (error) {
+            showMessage(error.response.data.error, true);
         }
     };
 
@@ -60,9 +75,7 @@ const App = () => {
             setUsername("");
             setPassword("");
         } catch (error) {
-            setError(true);
-            setMessage(error.response.data.error);
-            removeNotification(5000);
+            showMessage(error.response.data.error, true);
         }
     };
 
@@ -100,7 +113,7 @@ const App = () => {
 
     const blogForm = () => (
         <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-            <BlogForm createBlog={addBlog}/>
+            <BlogForm createBlog={addBlog} />
         </Togglable>
     );
 
@@ -119,7 +132,11 @@ const App = () => {
                     </p>
                     {blogForm()}
                     {blogs.map((blog) => (
-                        <Blog key={blog.id} blog={blog} />
+                        <Blog
+                            key={blog.id}
+                            blog={blog}
+                            updateBlog={handleUpdate}
+                        />
                     ))}
                 </div>
             )}
