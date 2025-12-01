@@ -10,12 +10,12 @@ describe('<Blog />', () => {
         likes: 1000,
     };
 
-    beforeEach(() => {
-        render(<Blog blog={testBlog} />);
-    });
+    let updateHandler;
 
-    afterEach(() => {
-        screen.debug(screen.container);
+    beforeEach(() => {
+        updateHandler = vi.fn();
+
+        render(<Blog blog={testBlog} updateBlog={updateHandler} />);
     });
 
     test('at start the title displayed and not render URL and likes by default', () => {
@@ -38,5 +38,19 @@ describe('<Blog />', () => {
 
         expect(url).toBeVisible();
         expect(likes).toBeVisible();
+    });
+
+    test('when like button is clicked twice the like handler is called twice', async () => {
+        const user = userEvent.setup();
+        const viewBtn = screen.getByText('view');
+
+        await user.click(viewBtn);
+
+        const likeBtn = screen.getByText('like');
+
+        await user.click(likeBtn);
+        await user.click(likeBtn);
+
+        expect(updateHandler.mock.calls).toHaveLength(2);
     });
 });
