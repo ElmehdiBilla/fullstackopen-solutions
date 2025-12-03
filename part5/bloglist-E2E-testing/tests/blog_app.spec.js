@@ -58,5 +58,24 @@ describe('Blog app', () => {
             await expect(blog).toBeVisible();
             await expect(blog).toContainText('testing blog');
         });
+
+        describe('and one blog exists', () => {
+            beforeEach(async ({ page }) => {
+                await createBlog(page, {
+                    title: 'testing blog',
+                    author: 'jhon doe',
+                    url: 'https://important-dial.org',
+                });
+            });
+
+            test('the blog can be liked.', async ({ page }) => {
+                const blog = page.locator('.blog');
+                await blog.getByRole('button', { name: 'view' }).click();
+                await blog.getByRole('button', { name: 'like' }).click();
+
+                const likes = blog.locator('.blog-likes');
+                await expect(likes).toContainText('likes 1');
+            });
+        });
     });
 });
