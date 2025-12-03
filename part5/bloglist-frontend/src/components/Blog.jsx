@@ -38,30 +38,27 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
     };
 
     return (
-        <div style={blogStyle}>
-            <div>
-                {blog.title}
-                &nbsp;
-                <button onClick={() => setVisible(!visible)}>
-                    {visible ? 'hide' : 'view'}
-                </button>
-                {visible && (
-                    <div>
-                        <a href={blog.url}>{blog.url}</a>
-                        <div>
-                            likes {blog.likes}
-                            &nbsp;
-                            <button onClick={handleLike}>like</button>
-                        </div>
-                        <div>{blog.author}</div>
-                        {deleteBlog && (
-                            <button style={deleteBtn} onClick={handleDelete}>
-                                delete
-                            </button>
-                        )}
+        <div style={blogStyle} className='blog'>
+            <span className='blog-title'>{blog.title}</span>
+            <button onClick={() => setVisible(!visible)}>
+                {visible ? 'hide' : 'view'}
+            </button>
+            {visible && (
+                <div>
+                    <a className='blog-url' href={blog.url}>{blog.url}</a>
+                    <div className='blog-likes'>
+                        likes {blog.likes}
+                        &nbsp;
+                        <button onClick={handleLike}>like</button>
                     </div>
-                )}
-            </div>
+                    <div className='blog-author'>{blog.author}</div>
+                    {deleteBlog && (
+                        <button style={deleteBtn} onClick={handleDelete}>
+                            delete
+                        </button>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

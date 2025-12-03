@@ -1,5 +1,6 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test');
-const { loginWith } = require('./helper');
+const { loginWith, createBlog } = require('./helper');
+const { title } = require('process');
 
 describe('Blog app', () => {
     beforeEach(async ({ page, request }) => {
@@ -38,6 +39,24 @@ describe('Blog app', () => {
             await expect(
                 page.getByText('Matti Luukkainen logged in')
             ).not.toBeVisible();
+        });
+    });
+
+    describe('When logged in', () => {
+        beforeEach(async ({ page }) => {
+            await loginWith(page, 'jhondoe', 'password');
+        });
+
+        test('a new blog can be created', async ({ page }) => {
+            await createBlog(page, {
+                title: 'testing blog',
+                author: 'jhon doe',
+                url: 'https://honest-threat.org',
+            });
+
+            const blog = page.locator('.blog').last();
+            await expect(blog).toBeVisible();
+            await expect(blog).toContainText('testing blog');
         });
     });
 });
