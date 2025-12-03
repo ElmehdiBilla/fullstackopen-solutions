@@ -37,7 +37,7 @@ describe('Blog app', () => {
             await expect(errorDiv).toHaveCSS('border-style', 'solid');
             await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)');
             await expect(
-                page.getByText('Matti Luukkainen logged in')
+                page.getByText('Jhon Doe logged in')
             ).not.toBeVisible();
         });
     });
@@ -90,6 +90,38 @@ describe('Blog app', () => {
 
                 await blog.getByRole('button', { name: 'delete' }).click();
                 await expect(blog).not.toBeVisible();
+            });
+        });
+
+        describe('', () => {
+            beforeEach(async ({ page, request }) => {
+                await request.post('/api/users', {
+                    data: {
+                        name: 'Gustavo Waters',
+                        username: 'gustavo',
+                        password: 'password',
+                    },
+                });
+                await createBlog(page, {
+                    title: 'this blog created by jhon doe',
+                    author: 'jhon doe',
+                    url: 'http://swift-attention.net',
+                });
+            });
+
+            test("only the user who added the blog sees the blog's delete button", async ({
+                page,
+            }) => {
+                const loggedUser = await page.getByText('Jhon Doe logged in');
+                await loggedUser.getByRole('button', { name: 'logout' }).click();
+
+                await loginWith(page, 'gustavo', 'password');
+                const blog = page.getByText('this blog created by jhon doe').locator('..');
+                await blog.getByRole('button', { name: 'view' }).click();
+
+                await expect(
+                    blog.getByRole('button', { name: 'delete' })
+                ).toHaveCount(0);
             });
         });
     });
