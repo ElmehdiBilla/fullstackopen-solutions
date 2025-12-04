@@ -1,6 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test');
 const { loginWith, createBlog } = require('./helper');
-const { title } = require('process');
 
 describe('Blog app', () => {
     beforeEach(async ({ page, request }) => {
@@ -31,14 +30,10 @@ describe('Blog app', () => {
             await loginWith(page, 'jhondoe', 'wrong');
 
             const errorDiv = page.locator('.notification.error');
-            await expect(errorDiv).toContainText(
-                'invalid username or password'
-            );
+            await expect(errorDiv).toContainText('invalid username or password');
             await expect(errorDiv).toHaveCSS('border-style', 'solid');
             await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)');
-            await expect(
-                page.getByText('Jhon Doe logged in')
-            ).not.toBeVisible();
+            await expect(page.getByText('Jhon Doe logged in')).not.toBeVisible();
         });
     });
 
@@ -77,9 +72,7 @@ describe('Blog app', () => {
                 await expect(likes).toContainText('likes 1');
             });
 
-            test('the user who added the blog can delete the blog', async ({
-                page,
-            }) => {
+            test('the user who added the blog can delete the blog', async ({ page }) => {
                 const blog = page.locator('.blog');
                 await blog.getByRole('button', { name: 'view' }).click();
 
@@ -109,9 +102,7 @@ describe('Blog app', () => {
                 });
             });
 
-            test("only the user who added the blog sees the blog's delete button", async ({
-                page,
-            }) => {
+            test("only the user who added the blog sees the blog's delete button", async ({ page }) => {
                 const loggedUser = await page.getByText('Jhon Doe logged in');
                 await loggedUser.getByRole('button', { name: 'logout' }).click();
 
@@ -119,9 +110,68 @@ describe('Blog app', () => {
                 const blog = page.getByText('this blog created by jhon doe').locator('..');
                 await blog.getByRole('button', { name: 'view' }).click();
 
-                await expect(
-                    blog.getByRole('button', { name: 'delete' })
-                ).toHaveCount(0);
+                await expect(blog.getByRole('button', { name: 'delete' })).toHaveCount(0);
+            });
+        });
+
+        describe('the blogs are arranged in the order according to the likes', () => {
+            const blogs = [
+                {
+                    title: 'blog with 10000 likes',
+                    author: 'May Hansen',
+                    url: 'http://outlandish-performance.biz',
+                    likes: 10000,
+                },
+                {
+                    title: 'blog with 1000 likes',
+                    author: 'Monica Bashirian II',
+                    url: 'https://vicious-pavement.name',
+                    likes: 1000,
+                },
+                {
+                    title: 'blog with 500 likes',
+                    author: 'Ms. Stacy Mohr',
+                    url: 'http://proud-solicitation.org',
+                    likes: 500,
+                },
+                {
+                    title: 'blog with 100 likes',
+                    author: 'Erin Koch',
+                    url: 'http://quizzical-futon.com',
+                    likes: 100,
+                },
+            ];
+
+            const sortedBlogs = [...blogs].sort((bA, bB) => bB.likes - bA.likes);
+
+            beforeEach(async ({ page, request }) => {
+                for (const b of blogs) {
+                    await createBlog(page, b);
+                    await page.locator('.blog').getByText(b.title).waitFor();
+                }
+
+                const res = await request.get('/api/blogs');
+                const data = await res.json();
+
+                for (const b of data) {
+                    const match = blogs.find((x) => x.title === b.title);
+                    await request.put(`/api/blogs/${b.id}`, { data: { likes: match.likes } });
+                }
+                
+                await page.reload();
+            });
+            
+            test('the blog with the most likes first', async ({ page }) => {
+                await page.waitForResponse(
+                    (res) => res.url().includes('/api/blogs') && res.status() === 200
+                );
+                const blogsElements = await page.locator('.blog').all();
+                for (const [index, b] of blogsElements.entries()) {
+                    await b.getByRole('button', { name: 'view' }).click();
+                    await b.locator('.blog-likes').waitFor();
+                    const likes = b.locator('.blog-likes');
+                    await expect(likes).toContainText(`likes ${sortedBlogs[index].likes}`);
+                }
             });
         });
     });
