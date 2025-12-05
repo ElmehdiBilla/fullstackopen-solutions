@@ -16,6 +16,13 @@ export const vote = (id) => {
     };
 };
 
+export const createAnecdote = (content) => {
+    return {
+        type: 'NEW_ANECDOTE',
+        payload: asObject(content)
+    };
+};
+
 const asObject = (anecdote) => {
     return {
         content: anecdote,
@@ -27,16 +34,18 @@ const asObject = (anecdote) => {
 const initialState = anecdotesAtStart.map(asObject);
 
 const reducer = (state = initialState, action) => {
-    switch (action.type) {
-        case 'VOTE': {
-            const id = action.payload.id;
-            const anecdoteVoted = state.find((anecdote) => anecdote.id === id);
-            return [...state].map((anecdote) =>
-                anecdote.id === id ? { ...anecdoteVoted, votes: anecdote.votes + 1 } : anecdote
-            );
-        }
-        default:
-            return state;
+  switch (action.type) {
+    case 'VOTE': {
+      const id = action.payload.id;
+      const anecdoteVoted = state.find((anecdote) => anecdote.id === id);
+      return [...state].map((anecdote) =>
+        anecdote.id === id ? { ...anecdoteVoted, votes: anecdote.votes + 1 } : anecdote
+    );
+  }
+  case 'NEW_ANECDOTE':
+    return [...state,action.payload]
+    default:
+      return state;
     }
 };
 
