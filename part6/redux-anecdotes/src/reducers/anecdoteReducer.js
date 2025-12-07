@@ -1,16 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
-import anecdoteService from '../services/anecdotes'
+import anecdoteService from '../services/anecdotes';
+import { removeMessage, showMessage } from './notificationReducer';
 
 const anecdoteSlice = createSlice({
     name: 'anecdotes',
     initialState: [],
     reducers: {
         vote(state, action) {
-            const id = action.payload;
-            const anecdoteVoted = state.find((anecdote) => anecdote.id === id);
-            return state.map((anecdote) =>
-                anecdote.id === id ? { ...anecdoteVoted, votes: anecdote.votes + 1 } : anecdote
-            );
+            const { id } = action.payload;
+            return state.map((anecdote) => (anecdote.id === id ? action.payload : anecdote));
         },
         createAnecdote(state, action) {
             return [...state, action.payload];
@@ -21,7 +19,7 @@ const anecdoteSlice = createSlice({
     },
 });
 
-const { setAnecdotes, createAnecdote } = anecdoteSlice.actions;
+const { setAnecdotes, createAnecdote, vote } = anecdoteSlice.actions;
 
 export const initializeAnecdotes = () => {
     return async (dispatch) => {
@@ -37,5 +35,15 @@ export const appendAnecdote = (content) => {
     };
 };
 
-export const { vote } = anecdoteSlice.actions;
+export const voting = (id) => {
+    return async (dispatch) => {
+        const updatedAnecdote = await anecdoteService.vote(id);
+        dispatch(vote(updatedAnecdote));
+        dispatch(showMessage({ message: `You voted ${updatedAnecdote.content}` }));
+        setTimeout(() => {
+            dispatch(removeMessage());
+        }, 5000);
+    };
+};
+
 export default anecdoteSlice.reducer;
