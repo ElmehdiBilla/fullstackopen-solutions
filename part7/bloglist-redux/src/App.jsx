@@ -5,14 +5,15 @@ import loginService from './services/login'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
+import { setNotification } from './reducers/notificationReducer'
+import { useDispatch } from 'react-redux'
 
 const App = () => {
+  const dispatch = useDispatch()
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [message, setMessage] = useState(null)
-  const [error, setError] = useState(false)
   const blogFormRef = useRef()
 
   useEffect(() => {
@@ -30,36 +31,23 @@ const App = () => {
     }
   }, [])
 
-  const removeNotification = (ms = 0) => {
-    setTimeout(() => {
-      setError(false)
-      setMessage(null)
-    }, ms)
-  }
-
-  const showMessage = (msg, isError = false) => {
-    setMessage(msg)
-    setError(isError)
-    removeNotification(5000)
-  }
-
   const addBlog = async (blog) => {
     blogFormRef.current.toggleVisibility()
     try {
       const returnedBlog = await blogService.create(blog)
       /*
-                we add the username to the returned blog
-                because the backend (POST) only return the id of the user
-                and the user logged does not have id field
-            */
+          we add the username to the returned blog
+          because the backend (POST) only return the id of the user
+          and the user logged does not have id field
+      */
       returnedBlog.user = {
         username: user.username,
         name: user.name,
       }
       setBlogs(blogs.concat(returnedBlog))
-      showMessage(`a new blog ${returnedBlog.title} added`)
+      dispatch(setNotification(`a new blog ${returnedBlog.title} added`))
     } catch (error) {
-      showMessage(error.response.data.error, true)
+      dispatch(setNotification(error.response.data.error, true))
     }
   }
 
@@ -67,9 +55,9 @@ const App = () => {
     try {
       const returnedBlog = await blogService.update(blog.id, blog)
       setBlogs(blogs.map((b) => (b.id === returnedBlog.id ? returnedBlog : b)))
-      showMessage('the blog likes is updated')
+      dispatch(setNotification('the blog likes is updated'))
     } catch (error) {
-      showMessage(error.response.data.error, true)
+      dispatch(setNotification(error.response.data.error, true))
     }
   }
 
@@ -77,9 +65,9 @@ const App = () => {
     try {
       await blogService.deleteBlog(id)
       setBlogs(blogs.filter((b) => b.id !== id))
-      showMessage('the blog is deleted')
+      dispatch(setNotification('the blog is deleted'))
     } catch (error) {
-      showMessage(error.response.data.error, true)
+      dispatch(setNotification(error.response.data.error, true))
     }
   }
 
@@ -94,7 +82,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (error) {
-      showMessage(error.response.data.error, true)
+      dispatch(setNotification(error.response.data.error, true))
     }
   }
 
@@ -138,7 +126,7 @@ const App = () => {
 
   return (
     <div>
-      <Notification message={message} error={error} />
+      <Notification />
 
       {!user && loginForm()}
 
