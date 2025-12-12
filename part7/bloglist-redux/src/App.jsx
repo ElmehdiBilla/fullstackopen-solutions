@@ -1,26 +1,23 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
-import Togglable from './components/Togglable'
-import BlogForm from './components/BlogForm'
 import { setNotification } from './reducers/notificationReducer'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import BlogForm from './components/BlogForm'
+import { initializeBlogs } from './reducers/blogReducer'
 
 const App = () => {
   const dispatch = useDispatch()
-  const [blogs, setBlogs] = useState([])
+  const blogs = useSelector((state) => state.blogs)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const blogFormRef = useRef()
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => {
-      setBlogs([...blogs].sort((bA, bB) => bB.likes - bA.likes))
-    })
-  }, [])
+    dispatch(initializeBlogs())
+  }, [dispatch])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedUser')
@@ -30,46 +27,6 @@ const App = () => {
       setUser(user)
     }
   }, [])
-
-  const addBlog = async (blog) => {
-    blogFormRef.current.toggleVisibility()
-    try {
-      const returnedBlog = await blogService.create(blog)
-      /*
-          we add the username to the returned blog
-          because the backend (POST) only return the id of the user
-          and the user logged does not have id field
-      */
-      returnedBlog.user = {
-        username: user.username,
-        name: user.name,
-      }
-      setBlogs(blogs.concat(returnedBlog))
-      dispatch(setNotification(`a new blog ${returnedBlog.title} added`))
-    } catch (error) {
-      dispatch(setNotification(error.response.data.error, true))
-    }
-  }
-
-  const handleUpdate = async (blog) => {
-    try {
-      const returnedBlog = await blogService.update(blog.id, blog)
-      setBlogs(blogs.map((b) => (b.id === returnedBlog.id ? returnedBlog : b)))
-      dispatch(setNotification('the blog likes is updated'))
-    } catch (error) {
-      dispatch(setNotification(error.response.data.error, true))
-    }
-  }
-
-  const handleDelete = async (id) => {
-    try {
-      await blogService.deleteBlog(id)
-      setBlogs(blogs.filter((b) => b.id !== id))
-      dispatch(setNotification('the blog is deleted'))
-    } catch (error) {
-      dispatch(setNotification(error.response.data.error, true))
-    }
-  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -118,12 +75,6 @@ const App = () => {
     </form>
   )
 
-  const blogForm = () => (
-    <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-      <BlogForm createBlog={addBlog} />
-    </Togglable>
-  )
-
   return (
     <div>
       <Notification />
@@ -136,15 +87,11 @@ const App = () => {
           <p>
             {user.name} logged in <button onClick={handleLogout}>logout</button>
           </p>
-          {blogForm()}
+          <BlogForm />
           {blogs.map((blog) => (
             <Blog
               key={blog.id}
               blog={blog}
-              updateBlog={handleUpdate}
-              deleteBlog={
-                user?.username === blog?.user?.username ? handleDelete : null
-              }
             />
           ))}
         </div>
