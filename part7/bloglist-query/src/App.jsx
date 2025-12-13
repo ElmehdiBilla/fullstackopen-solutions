@@ -103,6 +103,9 @@ const App = () => {
             <Blog
               key={blog.id}
               blog={blog}
+              canBeDeleted={
+                user?.username === blog?.user?.username ? true : false
+              }
             />
           ))}
         </div>
