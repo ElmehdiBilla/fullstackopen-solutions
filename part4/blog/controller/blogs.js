@@ -33,7 +33,9 @@ blogsRouter.post("/", userExtractor, async (request, response) => {
     user.blogs = user.blogs.concat(savedBlog._id);
     await user.save();
 
-    response.status(201).json(savedBlog);
+    const populatedBlog = await Blog.findById(savedBlog.id).populate('user', { username: 1, name: 1 });
+
+    response.status(201).json(populatedBlog);
 });
 
 blogsRouter.delete("/:id", userExtractor, async (request, response) => {
@@ -87,7 +89,8 @@ blogsRouter.put("/:id", async (request, response) => {
             blogToUpdate.likes = likes;
         }
         const updatedBlog = await blogToUpdate.save();
-        return response.status(200).json(updatedBlog);
+        const populatedBlog = await Blog.findById(updatedBlog.id).populate('user', { username: 1, name: 1 });
+        return response.status(200).json(populatedBlog);
     } catch (error) {
         if (error.name === "ValidationError") {
             return response
