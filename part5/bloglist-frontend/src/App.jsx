@@ -47,15 +47,6 @@ const App = () => {
         blogFormRef.current.toggleVisibility();
         try {
             const returnedBlog = await blogService.create(blog);
-            /*
-                we add the username to the returned blog
-                because the backend (POST) only return the id of the user
-                and the user logged does not have id field
-            */
-            returnedBlog.user = {
-                username: user.username,
-                name: user.name,
-            };
             setBlogs(blogs.concat(returnedBlog));
             showMessage(`a new blog ${returnedBlog.title} added`);
         } catch (error) {
