@@ -1,18 +1,16 @@
 import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
-import loginService from './services/login'
 import Notification from './components/Notification'
-import NotificationContext from './NotificationContext'
 import { useContext } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import BlogForm from './components/BlogForm'
+import AuthContext from './authContext'
 
 const App = () => {
-  const { setNotification } = useContext(NotificationContext)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+  const { user, login, logout, initializeUser } = useContext(AuthContext)
 
   const { isPending, isError, data } = useQuery({
     queryKey: ['blogs'],
@@ -21,32 +19,14 @@ const App = () => {
   })
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      blogService.setToken(user.token)
-      setUser(user)
-    }
+    initializeUser()
   }, [])
 
   const handleLogin = async (event) => {
     event.preventDefault()
-
-    try {
-      const user = await loginService.login({ username, password })
-      window.localStorage.setItem('loggedUser', JSON.stringify(user))
-      blogService.setToken(user.token)
-      setUser(user)
-      setUsername('')
-      setPassword('')
-    } catch (error) {
-      setNotification(error.response.data.error, true)
-    }
-  }
-
-  const handleLogout = () => {
-    window.localStorage.removeItem('loggedUser')
-    window.location.reload()
+    login({ username, password })
+    setUsername('')
+    setPassword('')
   }
 
   const loginForm = () => (
@@ -96,9 +76,9 @@ const App = () => {
         <div>
           <h2>blogs</h2>
           <p>
-            {user.name} logged in <button onClick={handleLogout}>logout</button>
+            {user.name} logged in <button onClick={logout}>logout</button>
           </p>
-          <BlogForm/>
+          <BlogForm />
           {blogs.map((blog) => (
             <Blog
               key={blog.id}
