@@ -4,15 +4,18 @@ import App from './App'
 import './index.css'
 import { NotificationContextProvider } from './NotificationContext'
 import { AuthContextProvider } from './authContext'
+import { BrowserRouter as Router } from 'react-router-dom'
 
 const queryClient = new QueryClient()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <NotificationContextProvider>
-    <AuthContextProvider>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </AuthContextProvider>
-  </NotificationContextProvider>,
+  <Router>
+    <NotificationContextProvider>
+      <AuthContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
+      </AuthContextProvider>
+    </NotificationContextProvider>
+  </Router>,
 )
