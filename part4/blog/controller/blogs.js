@@ -101,4 +101,34 @@ blogsRouter.put("/:id", async (request, response) => {
     }
 });
 
+blogsRouter.post('/:id/comments', async (request, response) => {
+    const id = request.params.id;
+    const { comment } = request.body || {};
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return response.status(400).json({ error: 'invalid id format' });
+    }
+
+    if (!comment || comment.trim() === '') {
+        return response.status(400).json({ error: 'comment is required' });
+    }
+
+    try {
+        const blog = await Blog.findById(id);
+
+        if (!blog) {
+            return response.status(404).json({ error: 'blog  not found' });
+        }
+
+        blog.comments.push(comment);
+
+        const savedBlog = await blog.save();
+        const populatedBlog = await Blog.findById(savedBlog.id).populate('user', { username: 1, name: 1 });
+
+        return response.status(200).json(populatedBlog);
+    } catch (error) {
+        return response.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = blogsRouter;

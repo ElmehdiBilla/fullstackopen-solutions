@@ -57,6 +57,12 @@ const Blog = () => {
           </button>
         )}
       </div>
+      <h3>comments</h3>
+      <ul>
+        {
+          blog.comments.map(comment => <li key={comment}>{comment}</li>)
+        }
+      </ul>
     </div>
   )
 }
