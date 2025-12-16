@@ -1,13 +1,9 @@
-import Blog from './Blog'
 import BlogForm from './BlogForm'
 import blogService from '../services/blogs'
-import AuthContext from '../authContext'
-import { useContext } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 
 function BlogLists() {
-  const { user } = useContext(AuthContext)
-
   const { isPending, isError, data } = useQuery({
     queryKey: ['blogs'],
     queryFn: blogService.getAll,
@@ -22,17 +18,25 @@ function BlogLists() {
     return <span>blogs service not available due to problems in server</span>
   }
 
+  const blogStyle = {
+    paddingTop: 10,
+    paddingLeft: 2,
+    border: 'solid',
+    borderWidth: 1,
+    borderRadius: 3,
+    marginTop: 5,
+    marginBottom: 5,
+  }
+
   const blogs = data.sort((bA, bB) => bB.likes - bA.likes)
 
   return (
     <div>
       <BlogForm />
       {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          canBeDeleted={user?.username === blog?.user?.username ? true : false}
-        />
+        <div style={blogStyle} key={blog.id}>
+          <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+        </div>
       ))}
     </div>
   )

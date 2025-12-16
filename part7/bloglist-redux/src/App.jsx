@@ -7,6 +7,7 @@ import LoginForm from './components/LoginForm'
 import BlogLists from './components/BlogLists'
 import Users from './components/Users'
 import User from './components/User'
+import Blog from './components/Blog'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -34,6 +35,7 @@ const App = () => {
           </p>
           <Routes>
             <Route path="/" element={<BlogLists />} />
+            <Route path="/blogs/:id" element={<Blog />} />
             <Route path="/users" element={<Users />} />
             <Route path="/users/:id" element={<User/>} />
           </Routes>

@@ -1,19 +1,24 @@
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { deleteBlog, likeBlog } from '../reducers/blogReducer'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useMatch } from 'react-router-dom'
+import { deleteBlog, initializeBlogs, likeBlog } from '../reducers/blogReducer'
 
-const Blog = ({ blog, canBeDeleted }) => {
+const Blog = () => {
+  const match = useMatch('/blogs/:id')
   const dispatch = useDispatch()
-  const [visible, setVisible] = useState(false)
+  const user = useSelector((state) => state.user)
+  const blogs = useSelector((state) => state.blogs)
+  const blog = match ? blogs.find((b) => b.id === match.params.id) : null
+  const canBeDeleted = user?.username === blog?.user?.username ? true : false
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    borderRadius: 3,
-    marginTop: 5,
-    marginBottom: 5,
+  useEffect(() => {
+    if (blogs.length === 0) {
+      dispatch(initializeBlogs())
+    }
+  }, [dispatch, blogs.length])
+
+  if (!blog) {
+    return null
   }
 
   const deleteBtn = {
@@ -34,29 +39,24 @@ const Blog = ({ blog, canBeDeleted }) => {
   }
 
   return (
-    <div style={blogStyle} className="blog">
-      <span className="blog-title">{blog.title}</span>
-      <button onClick={() => setVisible(!visible)}>
-        {visible ? 'hide' : 'view'}
-      </button>
-      {visible && (
-        <div>
-          <a className="blog-url" href={blog.url}>
-            {blog.url}
-          </a>
-          <div className="blog-likes">
-            likes {blog.likes}
-            &nbsp;
-            <button onClick={handleLike}>like</button>
-          </div>
-          <div className="blog-author">{blog.author}</div>
-          {canBeDeleted && (
-            <button style={deleteBtn} onClick={handleDelete}>
-              delete
-            </button>
-          )}
+    <div className="blog">
+      <h2 className="blog-title">{blog.title}</h2>
+      <div>
+        <a className="blog-url" href={blog.url}>
+          {blog.url}
+        </a>
+        <div className="blog-likes">
+          likes {blog.likes}
+          &nbsp;
+          <button onClick={handleLike}>like</button>
         </div>
-      )}
+        <div className="blog-author">{blog.author}</div>
+        {canBeDeleted && (
+          <button style={deleteBtn} onClick={handleDelete}>
+            delete
+          </button>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,12 +1,21 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMatch } from 'react-router-dom'
 import blogService from '../services/blogs'
 import NotificationContext from '../NotificationContext'
+import AuthContext from '../AuthContext'
 
-const Blog = ({ blog, canBeDeleted }) => {
+const Blog = () => {
+  const match = useMatch('/blogs/:id')
   const queryClient = useQueryClient()
-  const [visible, setVisible] = useState(false)
   const { setNotification } = useContext(NotificationContext)
+  const { user } = useContext(AuthContext)
+
+  const { isPending, isError, data } = useQuery({
+    queryKey: ['blogs'],
+    queryFn: blogService.getAll,
+    retry: false,
+  })
 
   const likesMutation = useMutation({
     mutationFn: (blog) => {
@@ -40,6 +49,21 @@ const Blog = ({ blog, canBeDeleted }) => {
     },
   })
 
+  if (isPending) {
+    return <span>Loading...</span>
+  }
+
+  if (isError) {
+    return <span>blogs service not available due to problems in server</span>
+  }
+
+  const blog = match ? data.find((u) => u.id === match.params.id) : null
+  const canBeDeleted = user?.username === blog?.user?.username ? true : false
+
+  if (!blog) {
+    return null
+  }
+
   const handleLike = () => {
     likesMutation.mutate({ ...blog, likes: blog.likes + 1 })
   }
@@ -50,16 +74,6 @@ const Blog = ({ blog, canBeDeleted }) => {
     }
   }
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    borderRadius: 3,
-    marginTop: 5,
-    marginBottom: 5,
-  }
-
   const deleteBtn = {
     backgroundColor: '#f55',
     borderColor: '#f00',
@@ -68,29 +82,24 @@ const Blog = ({ blog, canBeDeleted }) => {
   }
 
   return (
-    <div style={blogStyle} className="blog">
-      <span className="blog-title">{blog.title}</span>
-      <button onClick={() => setVisible(!visible)}>
-        {visible ? 'hide' : 'view'}
-      </button>
-      {visible && (
-        <div>
-          <a className="blog-url" href={blog.url}>
-            {blog.url}
-          </a>
-          <div className="blog-likes">
-            likes {blog.likes}
-            &nbsp;
-            <button onClick={handleLike}>like</button>
-          </div>
-          <div className="blog-author">{blog.author}</div>
-          {canBeDeleted && (
-            <button style={deleteBtn} onClick={handleDelete}>
-              delete
-            </button>
-          )}
+    <div className="blog">
+      <h2 className="blog-title">{blog.title}</h2>
+      <div>
+        <a className="blog-url" href={blog.url}>
+          {blog.url}
+        </a>
+        <div className="blog-likes">
+          likes {blog.likes}
+          &nbsp;
+          <button onClick={handleLike}>like</button>
         </div>
-      )}
+        <div className="blog-author">{blog.author}</div>
+        {canBeDeleted && (
+          <button style={deleteBtn} onClick={handleDelete}>
+            delete
+          </button>
+        )}
+      </div>
     </div>
   )
 }

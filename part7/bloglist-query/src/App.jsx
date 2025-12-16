@@ -1,11 +1,12 @@
 import { useContext, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import AuthContext from './authContext'
+import AuthContext from './AuthContext'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogLists from './components/BlogLists'
 import Users from './components/Users'
 import User from './components/User'
+import Blog from './components/Blog'
 
 const App = () => {
   const { user, logout, initializeUser } = useContext(AuthContext)
@@ -28,6 +29,7 @@ const App = () => {
           </p>
           <Routes>
             <Route path="/" element={<BlogLists />} />
+            <Route path="/blogs/:id" element={<Blog />} />
             <Route path="/users" element={<Users />} />
             <Route path="/users/:id" element={<User />} />
           </Routes>
