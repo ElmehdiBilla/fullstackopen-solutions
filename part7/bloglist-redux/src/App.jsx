@@ -6,6 +6,7 @@ import { initializeUser, logout } from './reducers/authReducer'
 import LoginForm from './components/LoginForm'
 import BlogLists from './components/BlogLists'
 import Users from './components/Users'
+import User from './components/User'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -34,6 +35,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<BlogLists />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/users/:id" element={<User/>} />
           </Routes>
         </div>
       )}

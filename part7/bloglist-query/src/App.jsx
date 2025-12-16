@@ -5,6 +5,7 @@ import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
 import BlogLists from './components/BlogLists'
 import Users from './components/Users'
+import User from './components/User'
 
 const App = () => {
   const { user, logout, initializeUser } = useContext(AuthContext)
@@ -28,6 +29,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<BlogLists />} />
             <Route path="/users" element={<Users />} />
+            <Route path="/users/:id" element={<User />} />
           </Routes>
         </div>
       )}
