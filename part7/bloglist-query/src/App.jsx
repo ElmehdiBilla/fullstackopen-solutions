@@ -7,9 +7,11 @@ import BlogLists from './components/BlogLists'
 import Users from './components/Users'
 import User from './components/User'
 import Blog from './components/Blog'
+import Menu from './components/Menu'
+
 
 const App = () => {
-  const { user, logout, initializeUser } = useContext(AuthContext)
+  const { user, initializeUser } = useContext(AuthContext)
 
   useEffect(() => {
     initializeUser()
@@ -18,15 +20,11 @@ const App = () => {
   return (
     <div>
       <Notification />
-      {!user && <LoginForm />}
+      {!user ? <LoginForm /> : <Menu />}
 
       {user && (
         <div>
-          <h2>blogs</h2>
-          <p>{user.name} logged in</p>
-          <p>
-            <button onClick={logout}>logout</button>
-          </p>
+          <h2>blog app</h2>
           <Routes>
             <Route path="/" element={<BlogLists />} />
             <Route path="/blogs/:id" element={<Blog />} />
