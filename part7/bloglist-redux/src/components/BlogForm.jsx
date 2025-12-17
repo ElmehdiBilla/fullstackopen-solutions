@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux'
 import { createBlog } from '../reducers/blogReducer'
 import Togglable from './Togglable'
 import { Button, Typography, TextField, Box } from '@mui/material'
+import SaveRoundedIcon from '@mui/icons-material/SaveRounded'
 
 const BlogForm = () => {
   const dispatch = useDispatch()
@@ -27,7 +28,7 @@ const BlogForm = () => {
         onSubmit={addBlog}
         sx={{
           maxWidth: 400,
-          marginBlock:4
+          marginBlock: 4,
         }}
       >
         <Typography variant="h5">create new blogs</Typography>
@@ -55,7 +56,11 @@ const BlogForm = () => {
           size="small"
           margin="normal"
         />
-        <Button type="submit" variant="contained">
+        <Button
+          startIcon={<SaveRoundedIcon />}
+          type="submit"
+          variant="contained"
+        >
           create
         </Button>
       </Box>

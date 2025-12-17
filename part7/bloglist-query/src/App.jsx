@@ -25,7 +25,7 @@ const App = () => {
       {!user && <LoginForm />}
       {user && (
         <div>
-          <Typography variant="h2">blog app</Typography>
+          <Typography variant="h2" marginBlock={4}>blog app</Typography>
           <Routes>
             <Route path="/" element={<BlogLists />} />
             <Route path="/blogs/:id" element={<Blog />} />

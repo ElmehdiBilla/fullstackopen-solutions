@@ -16,8 +16,11 @@ import {
   ListItemText,
   Button,
   TextField,
-  Stack
+  Stack,
 } from '@mui/material'
+import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded'
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded'
+import AddCommentRoundedIcon from '@mui/icons-material/AddCommentRounded'
 
 const Blog = () => {
   const match = useMatch('/blogs/:id')
@@ -153,11 +156,17 @@ const Blog = () => {
           </div>
         </CardContent>
         <CardActions>
-          <Button size="small" variant="outlined" onClick={handleLike}>
+          <Button
+            startIcon={<ThumbUpRoundedIcon />}
+            size="small"
+            variant="outlined"
+            onClick={handleLike}
+          >
             like
           </Button>
           {canBeDeleted && (
             <Button
+              startIcon={<DeleteRoundedIcon />}
               size="small"
               variant="outlined"
               color="error"
@@ -175,19 +184,23 @@ const Blog = () => {
 
       <Box component="form" onSubmit={handleComment}>
         <Stack direction="row" spacing={2}>
-            <TextField
-              label="Comment"
-              value={newComment}
-              onChange={({ target }) => setNewComment(target.value)}
-              fullWidth
-              size="small"
-              margin="normal"
-              required
-              sx={{ maxWidth: 360 }}
-            />
-            <Button variant="outlined" type="submit">
-              add comment
-            </Button>
+          <TextField
+            label="Comment"
+            value={newComment}
+            onChange={({ target }) => setNewComment(target.value)}
+            fullWidth
+            size="small"
+            margin="normal"
+            required
+            sx={{ maxWidth: 360 }}
+          />
+          <Button
+            startIcon={<AddCommentRoundedIcon />}
+            variant="outlined"
+            type="submit"
+          >
+            add comment
+          </Button>
         </Stack>
       </Box>
 

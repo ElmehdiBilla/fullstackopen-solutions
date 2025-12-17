@@ -15,6 +15,9 @@ import {
   TextField,
   Stack,
 } from '@mui/material'
+import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded'
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded'
+import AddCommentRoundedIcon from '@mui/icons-material/AddCommentRounded'
 
 const Blog = () => {
   const match = useMatch('/blogs/:id')
@@ -94,11 +97,17 @@ const Blog = () => {
           </div>
         </CardContent>
         <CardActions>
-          <Button size="small" variant="outlined" onClick={handleLike}>
+          <Button
+            startIcon={<ThumbUpRoundedIcon />}
+            size="small"
+            variant="outlined"
+            onClick={handleLike}
+          >
             like
           </Button>
           {canBeDeleted && (
             <Button
+              startIcon={<DeleteRoundedIcon />}
               size="small"
               variant="outlined"
               color="error"
@@ -126,7 +135,7 @@ const Blog = () => {
             required
             sx={{ maxWidth: 360 }}
           />
-          <Button variant="outlined" type="submit">
+          <Button startIcon={<AddCommentRoundedIcon/>} variant="outlined" type="submit">
             add comment
           </Button>
         </Stack>

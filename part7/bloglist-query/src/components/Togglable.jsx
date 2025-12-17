@@ -1,5 +1,7 @@
 import { useImperativeHandle, useState } from 'react'
 import { Button } from '@mui/material'
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 
 const Togglable = (props) => {
   const [visible, setVisible] = useState(false)
@@ -18,13 +20,22 @@ const Togglable = (props) => {
   return (
     <div>
       <div style={hideWhenVisible}>
-        <Button variant="outlined" onClick={toggleVisibility}>
+        <Button
+          startIcon={<AddRoundedIcon />}
+          variant="outlined"
+          onClick={toggleVisibility}
+        >
           {props.buttonLabel}
         </Button>
       </div>
       <div style={showWhenVisible}>
         {props.children}
-        <Button variant="outlined" onClick={toggleVisibility}>
+        <Button
+          startIcon={<CloseRoundedIcon />}
+          variant="outlined"
+          color='error'
+          onClick={toggleVisibility}
+        >
           cancel
         </Button>
       </div>

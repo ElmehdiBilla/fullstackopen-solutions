@@ -4,6 +4,7 @@ import blogService from '../services/blogs'
 import NotificationContext from '../NotificationContext'
 import Togglable from './Togglable'
 import { Button, Typography, TextField, Box } from '@mui/material'
+import SaveRoundedIcon from '@mui/icons-material/SaveRounded'
 
 const BlogForm = () => {
   const queryClient = useQueryClient()
@@ -69,7 +70,7 @@ const BlogForm = () => {
           size="small"
           margin="normal"
         />
-        <Button type="submit" variant="contained">
+        <Button startIcon={<SaveRoundedIcon/>} type="submit" variant="contained">
           create
         </Button>
       </Box>
