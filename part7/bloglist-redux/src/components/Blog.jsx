@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useMatch } from 'react-router-dom'
-import { deleteBlog, initializeBlogs, likeBlog } from '../reducers/blogReducer'
+import { addComment, deleteBlog, initializeBlogs, likeBlog } from '../reducers/blogReducer'
 
 const Blog = () => {
   const match = useMatch('/blogs/:id')
@@ -10,6 +10,7 @@ const Blog = () => {
   const blogs = useSelector((state) => state.blogs)
   const blog = match ? blogs.find((b) => b.id === match.params.id) : null
   const canBeDeleted = user?.username === blog?.user?.username ? true : false
+  const [newComment, setNewComment] = useState('')
 
   useEffect(() => {
     if (blogs.length === 0) {
@@ -38,6 +39,18 @@ const Blog = () => {
     }
   }
 
+  const handleComment = (e) => {
+    e.preventDefault()
+    if (newComment) {
+      dispatch(
+        addComment({
+          id: blog.id,
+          comment: newComment,
+        }),
+      )
+    }
+  }
+
   return (
     <div className="blog">
       <h2 className="blog-title">{blog.title}</h2>
@@ -58,10 +71,19 @@ const Blog = () => {
         )}
       </div>
       <h3>comments</h3>
+      <form onSubmit={handleComment}>
+        <input
+          type="text"
+          value={newComment}
+          onChange={({ target }) => setNewComment(target.value)}
+          required
+        />
+        <button type="submit">add comment</button>
+      </form>
       <ul>
-        {
-          blog.comments.map(comment => <li key={comment}>{comment}</li>)
-        }
+        {blog.comments.map((comment) => (
+          <li key={comment}>{comment}</li>
+        ))}
       </ul>
     </div>
   )

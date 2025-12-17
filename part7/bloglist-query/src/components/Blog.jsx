@@ -4,12 +4,14 @@ import { useMatch } from 'react-router-dom'
 import blogService from '../services/blogs'
 import NotificationContext from '../NotificationContext'
 import AuthContext from '../AuthContext'
+import { useState } from 'react'
 
 const Blog = () => {
   const match = useMatch('/blogs/:id')
   const queryClient = useQueryClient()
   const { setNotification } = useContext(NotificationContext)
   const { user } = useContext(AuthContext)
+  const [newComment, setNewComment] = useState('')
 
   const { isPending, isError, data } = useQuery({
     queryKey: ['blogs'],
@@ -49,6 +51,23 @@ const Blog = () => {
     },
   })
 
+  const commentMutation = useMutation({
+    mutationFn: ({ id, comment }) => {
+      return blogService.comment(id, { comment })
+    },
+    onSuccess: (blog) => {
+      const blogs = queryClient.getQueryData(['blogs'])
+      queryClient.setQueryData(
+        ['blogs'],
+        blogs.map((b) => (b.id === blog.id ? blog : b)),
+      )
+      setNotification('the comment is added')
+    },
+    onError: (error) => {
+      setNotification(error.response.data.error, true)
+    },
+  })
+
   if (isPending) {
     return <span>Loading...</span>
   }
@@ -71,6 +90,16 @@ const Blog = () => {
   const handleDelete = () => {
     if (window.confirm(`remove ${blog.title} by ${blog.author}`)) {
       deleteMutation.mutate(blog.id)
+    }
+  }
+
+  const handleComment = (e) => {
+    e.preventDefault()
+    if (newComment) {
+      commentMutation.mutate({
+        id: blog.id,
+        comment: newComment,
+      })
     }
   }
 
@@ -101,6 +130,15 @@ const Blog = () => {
         )}
       </div>
       <h3>comments</h3>
+      <form onSubmit={handleComment}>
+        <input
+          type="text"
+          value={newComment}
+          onChange={({ target }) => setNewComment(target.value)}
+          required
+        />
+        <button type="submit">add comment</button>
+      </form>
       <ul>
         {blog.comments.map((comment) => (
           <li key={comment}>{comment}</li>
