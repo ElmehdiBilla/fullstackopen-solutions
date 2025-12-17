@@ -1,6 +1,14 @@
 import { useMatch } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import usersService from '../services/users'
+import {
+  Paper,
+  Alert,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+} from '@mui/material'
 
 const User = () => {
   const match = useMatch('/users/:id')
@@ -12,11 +20,15 @@ const User = () => {
   })
 
   if (isPending) {
-    return <span>Loading...</span>
+    return <Typography sx={{ marginBlock: 2 }}>Loading...</Typography>
   }
 
   if (isError) {
-    return <span>Users service not available due to problems in server</span>
+    return (
+      <Alert sx={{ marginBlock: 2 }} severity="error">
+        Users service not available due to problems in server
+      </Alert>
+    )
   }
 
   const user = match ? data.find((u) => u.id === match.params.id) : null
@@ -26,17 +38,17 @@ const User = () => {
   }
 
   return (
-    <div>
-      <h2>{user.name}</h2>
-      <h3>added blogs</h3>
-      <ul>
+    <Paper variant="outlined" sx={{ padding: 4, marginTop: 4 }}>
+      <Typography variant="h4">{user.name}</Typography>
+      <Typography variant="h6" marginTop={2}>added blogs</Typography>
+      <List>
         {user.blogs.map((blog) => (
-          <li key={blog.id}>
-            <p>{blog.title}</p>
-          </li>
+          <ListItem key={blog.id}>
+            <ListItemText primary={blog.title} />
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Paper>
   )
 }
 

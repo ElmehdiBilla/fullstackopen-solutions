@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import blogService from '../services/blogs'
 import NotificationContext from '../NotificationContext'
 import Togglable from './Togglable'
+import { Button, Typography, TextField, Box } from '@mui/material'
 
 const BlogForm = () => {
   const queryClient = useQueryClient()
@@ -35,40 +36,43 @@ const BlogForm = () => {
 
   return (
     <Togglable buttonLabel="create new blog" ref={togglableRef}>
-      <form onSubmit={addBlog}>
-        <h2>create new blogs</h2>
-        <div>
-          <label>
-            title
-            <input
-              type="text"
-              value={title}
-              onChange={({ target }) => setTitle(target.value)}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            author
-            <input
-              type="text"
-              value={author}
-              onChange={({ target }) => setAuthor(target.value)}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            url
-            <input
-              type="text"
-              value={url}
-              onChange={({ target }) => setUrl(target.value)}
-            />
-          </label>
-        </div>
-        <button type="submit">create</button>
-      </form>
+      <Box
+        component="form"
+        onSubmit={addBlog}
+        sx={{
+          maxWidth: 400,
+          marginBlock: 4,
+        }}
+      >
+        <Typography variant="h5">create new blogs</Typography>
+        <TextField
+          label="Title"
+          value={title}
+          onChange={({ target }) => setTitle(target.value)}
+          fullWidth
+          size="small"
+          margin="normal"
+        />
+        <TextField
+          label="Author"
+          value={author}
+          onChange={({ target }) => setAuthor(target.value)}
+          fullWidth
+          size="small"
+          margin="normal"
+        />
+        <TextField
+          label="Url"
+          value={url}
+          onChange={({ target }) => setUrl(target.value)}
+          fullWidth
+          size="small"
+          margin="normal"
+        />
+        <Button type="submit" variant="contained">
+          create
+        </Button>
+      </Box>
     </Togglable>
   )
 }

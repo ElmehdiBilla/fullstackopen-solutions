@@ -38,7 +38,7 @@ export const login = ({ username, password }) => {
       blogService.setToken(user.token)
       dispatch(saveUser(user))
     } catch (error) {
-      setNotification(error.response.data.error, true)
+      dispatch(setNotification(error.response.data.error, true))
     }
   }
 }

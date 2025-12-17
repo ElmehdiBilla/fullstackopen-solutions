@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { initializeBlogs } from '../reducers/blogReducer'
 import BlogForm from './BlogForm'
 import { Link } from 'react-router-dom'
+import { List, ListItem, ListItemText } from '@mui/material'
 
 function BlogLists() {
   const dispatch = useDispatch()
@@ -12,24 +13,24 @@ function BlogLists() {
     dispatch(initializeBlogs())
   }, [dispatch])
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    borderRadius: 3,
-    marginTop: 5,
-    marginBottom: 5,
-  }
-
   return (
     <div>
       <BlogForm />
-      {blogs.map((blog) => (
-        <div style={blogStyle} key={blog.id}>
-          <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
-        </div>
-      ))}
+      <List>
+        {blogs.map((blog) => (
+          <ListItem
+            key={blog.id}
+            component={Link}
+            to={`/blogs/${blog.id}`}
+            sx={{
+              borderBottom: '1px solid #ddd',
+            }}
+            button="true"
+          >
+            <ListItemText primary={blog.title} secondary={blog.author} />
+          </ListItem>
+        ))}
+      </List>
     </div>
   )
 }

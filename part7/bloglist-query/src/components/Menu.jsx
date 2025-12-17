@@ -1,34 +1,36 @@
 import { useContext } from 'react'
 import AuthContext from '../AuthContext'
 import { Link } from 'react-router-dom'
+import { AppBar, Toolbar, Button, Typography } from '@mui/material'
+
 
 const Menu = () => {
   const { user, logout } = useContext(AuthContext)
 
-  const padding = 5
-  const backgroundColor = '#ddd'
-  const marginBottom = 5
-  const menuStyle = {
-    backgroundColor,
-    padding,
-    marginBottom,
-  }
-
   return (
-    <div style={menuStyle}>
-      <Link style={{ padding }} to="/">
-        blogs
-      </Link>
-      <Link style={{ padding }} to="/users">
-        users
-      </Link>
-
-      {user && (
-        <span style={{ padding }}>
-          {user.name} logged in <button onClick={logout}>logout</button>
-        </span>
-      )}
-    </div>
+    <AppBar position="static">
+      <Toolbar>
+        <Button color="inherit" component={Link} to="/">
+          blogs
+        </Button>
+        <Button color="inherit" component={Link} to="/users">
+          users
+        </Button>
+        {user && (
+          <>
+            <Typography>{user.name} logged in</Typography>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              onClick={logout}
+            >
+              logout
+            </Button>
+          </>
+        )}
+      </Toolbar>
+    </AppBar>
   )
 }
 

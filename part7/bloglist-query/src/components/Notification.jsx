@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import NotificationContext from '../NotificationContext'
+import { Alert } from '@mui/material'
 
 const Notification = () => {
   const { notification } = useContext(NotificationContext)
@@ -10,9 +11,9 @@ const Notification = () => {
   }
 
   return (
-    <div className={`notification ${isError ? 'error' : 'success'}`}>
+    <Alert sx={{ marginBlock: 2 }} severity={isError ? 'error' : 'success'}>
       {message}
-    </div>
+    </Alert>
   )
 }
 

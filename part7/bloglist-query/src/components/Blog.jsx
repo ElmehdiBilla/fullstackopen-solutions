@@ -5,6 +5,19 @@ import blogService from '../services/blogs'
 import NotificationContext from '../NotificationContext'
 import AuthContext from '../AuthContext'
 import { useState } from 'react'
+import {
+  Box,
+  Card,
+  CardActions,
+  CardContent,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  TextField,
+  Stack
+} from '@mui/material'
 
 const Blog = () => {
   const match = useMatch('/blogs/:id')
@@ -103,48 +116,97 @@ const Blog = () => {
     }
   }
 
-  const deleteBtn = {
-    backgroundColor: '#f55',
-    borderColor: '#f00',
-    borderRadius: 3,
-    borderWidth: 1,
-  }
-
   return (
-    <div className="blog">
-      <h2 className="blog-title">{blog.title}</h2>
-      <div>
-        <a className="blog-url" href={blog.url}>
-          {blog.url}
-        </a>
-        <div className="blog-likes">
-          likes {blog.likes}
-          &nbsp;
-          <button onClick={handleLike}>like</button>
-        </div>
-        <div className="blog-author">{blog.author}</div>
-        {canBeDeleted && (
-          <button style={deleteBtn} onClick={handleDelete}>
-            delete
-          </button>
-        )}
-      </div>
-      <h3>comments</h3>
-      <form onSubmit={handleComment}>
-        <input
-          type="text"
-          value={newComment}
-          onChange={({ target }) => setNewComment(target.value)}
-          required
-        />
-        <button type="submit">add comment</button>
-      </form>
-      <ul>
+    <Box>
+      <Card className="blog" variant="outlined">
+        <CardContent>
+          <Typography
+            gutterBottom
+            variant="h5"
+            component="div"
+            className="blog-title"
+          >
+            {blog.title}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            <a className="blog-url" href={blog.url}>
+              {blog.url}
+            </a>
+          </Typography>
+          <div>
+            <Typography
+              className="blog-likes"
+              variant="body2"
+              sx={{ color: 'text.secondary' }}
+            >
+              likes {blog.likes}
+            </Typography>
+          </div>
+          <div>
+            <Typography
+              className="blog-author"
+              variant="body2"
+              sx={{ color: 'text.secondary' }}
+            >
+              {blog.author}
+            </Typography>
+          </div>
+        </CardContent>
+        <CardActions>
+          <Button size="small" variant="outlined" onClick={handleLike}>
+            like
+          </Button>
+          {canBeDeleted && (
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          )}
+        </CardActions>
+      </Card>
+
+      <Typography variant="h6" marginBlock={2}>
+        comments
+      </Typography>
+
+      <Box component="form" onSubmit={handleComment}>
+        <Stack direction="row" spacing={2}>
+            <TextField
+              label="Comment"
+              value={newComment}
+              onChange={({ target }) => setNewComment(target.value)}
+              fullWidth
+              size="small"
+              margin="normal"
+              required
+              sx={{ maxWidth: 360 }}
+            />
+            <Button variant="outlined" type="submit">
+              add comment
+            </Button>
+        </Stack>
+      </Box>
+
+      <List>
         {blog.comments.map((comment) => (
-          <li key={comment}>{comment}</li>
+          <ListItem
+            key={comment}
+            sx={{
+              borderBottom: '1px solid #ddd',
+            }}
+          >
+            <ListItemText
+              sx={{ color: 'text.secondary' }}
+              primary={comment}
+            ></ListItemText>
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Box>
   )
 }
 

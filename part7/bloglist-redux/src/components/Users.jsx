@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { initializeUsers } from '../reducers/usersReducer'
 import { Link } from 'react-router-dom'
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 
 const Users = () => {
   const dispatch = useDispatch()
@@ -12,25 +13,32 @@ const Users = () => {
   }, [dispatch])
 
   return (
-    <div>
-      <h2>Users</h2>
-      <table>
-        <thead>
-          <tr>
-            <th></th>
-            <th>blogs created</th>
-          </tr>
-        </thead>
-        <tbody>
+    <TableContainer>
+      <Table sx={{ maxWidth: 400 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Users</TableCell>
+            <TableCell align="right">blogs created</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
           {users.map((user) => (
-            <tr key={user.id}>
-              <td><Link to={`/users/${user.id}`}>{user.name}</Link></td>
-              <td>{user.blogs.length}</td>
-            </tr>
+            <TableRow
+              key={user.id}
+              sx={{
+                '&:last-child td, &:last-child th': { border: 0 },
+                maxWidth: 400,
+              }}
+            >
+              <TableCell component="th" scope="row">
+                <Link to={`/users/${user.id}`}>{user.name}</Link>
+              </TableCell>
+              <TableCell align="right">{user.blogs.length}</TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+    </TableContainer>
   )
 }
 

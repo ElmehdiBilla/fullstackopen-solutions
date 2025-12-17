@@ -1,39 +1,40 @@
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../reducers/authReducer'
+import { AppBar, Toolbar, Button , Typography} from '@mui/material'
 
 const Menu = () => {
   const dispatch = useDispatch()
   const user = useSelector((state) => state.user)
-
-  const padding = 5
-  const backgroundColor = '#ddd'
-  const marginBottom = 5
-  const menuStyle = {
-    backgroundColor,
-    padding,
-    marginBottom,
-  }
 
   const handleLogout = () => {
     dispatch(logout())
   }
 
   return (
-    <div style={menuStyle}>
-      <Link style={{ padding }} to="/">
-        blogs
-      </Link>
-      <Link style={{ padding }} to="/users">
-        users
-      </Link>
-
-      {user && (
-        <span style={{ padding }}>
-          {user.name} logged in <button onClick={handleLogout}>logout</button>
-        </span>
-      )}
-    </div>
+    <AppBar position="static">
+      <Toolbar>
+        <Button color="inherit" component={Link} to="/">
+          blogs
+        </Button>
+        <Button color="inherit" component={Link} to="/users">
+          users
+        </Button>
+        {user && (
+          <>
+            <Typography>{user.name} logged in</Typography>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              onClick={handleLogout}
+            >
+              logout
+            </Button>
+          </>
+        )}
+      </Toolbar>
+    </AppBar>
   )
 }
 

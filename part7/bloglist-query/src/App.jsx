@@ -8,6 +8,7 @@ import Users from './components/Users'
 import User from './components/User'
 import Blog from './components/Blog'
 import Menu from './components/Menu'
+import { Container, Typography } from '@mui/material'
 
 
 const App = () => {
@@ -18,13 +19,13 @@ const App = () => {
   }, [])
 
   return (
-    <div>
+    <Container>
+      {user && <Menu />}
       <Notification />
-      {!user ? <LoginForm /> : <Menu />}
-
+      {!user && <LoginForm />}
       {user && (
         <div>
-          <h2>blog app</h2>
+          <Typography variant="h2">blog app</Typography>
           <Routes>
             <Route path="/" element={<BlogLists />} />
             <Route path="/blogs/:id" element={<Blog />} />
@@ -33,7 +34,7 @@ const App = () => {
           </Routes>
         </div>
       )}
-    </div>
+    </Container>
   )
 }
 
