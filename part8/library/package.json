@@ -1,0 +1,17 @@
+{
+    "name": "library",
+    "version": "1.0.0",
+    "description": "GraphQL backend for a small library",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "node --watch index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "elmehdibilla",
+    "license": "ISC",
+    "dependencies": {
+        "@apollo/server": "^5.2.0",
+        "graphql": "^16.12.0"
+    }
+}
