@@ -80,9 +80,17 @@ let books = [
 ];
 
 const typeDefs = /* GraphQL */ `
+    type Book {
+        id: String!
+        title: String!
+        author: String!
+        published: String!
+        genres: [String!]
+    }
     type Query {
         bookCount: Int!
         authorCount: Int!
+        allBooks: [Book!]!
     }
 `;
 
@@ -90,6 +98,7 @@ const resolvers = {
     Query: {
         bookCount: () => books.length,
         authorCount: () => authors.length,
+        allBooks: () => books,
     },
 };
 
