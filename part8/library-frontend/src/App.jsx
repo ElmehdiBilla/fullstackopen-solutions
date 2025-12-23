@@ -4,12 +4,13 @@ import Authors from './components/Authors';
 import Books from './components/Books';
 import NewBook from './components/NewBook';
 
-import { ALL_AUTHORS } from './queries';
+import { ALL_AUTHORS, ALL_BOOKS } from './queries';
 
 const padding = 4;
 
 const App = () => {
     const { loading: authorsDataLoading, data: authorsData } = useQuery(ALL_AUTHORS);
+    const { loading: booksDataLoading, data: booksData } = useQuery(ALL_BOOKS);
 
     return (
         <div>
@@ -20,7 +21,7 @@ const App = () => {
             </div>
             <Routes>
                 <Route path='/' element={<Authors isLoading={authorsDataLoading} data={authorsData} />} />
-                <Route path='/books' element={<Books />} />
+                <Route path='/books' element={<Books isLoading={booksDataLoading} data={booksData} />} />
                 <Route path='/add' element={<NewBook />} />
             </Routes>
         </div>
