@@ -29,7 +29,7 @@ const Authors = ({ data, isLoading }) => {
                     ))}
                 </tbody>
             </table>
-            <UpdateBirthYear/>
+            <UpdateBirthYear authors={data.allAuthors} />
         </div>
     );
 };
