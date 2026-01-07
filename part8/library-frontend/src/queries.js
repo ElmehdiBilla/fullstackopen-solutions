@@ -33,3 +33,14 @@ export const ADD_BOOK = gql`
         }
     }
 `;
+
+export const EDIT_AUTHOR_BIRTH = gql`
+    mutation editAuthor($name: String!, $born: Int!) {
+        editAuthor(name: $name, setBornTo: $born) {
+            name
+            born
+            id
+            bookCount
+        }
+    }
+`;

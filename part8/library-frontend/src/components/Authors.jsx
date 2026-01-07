@@ -1,3 +1,5 @@
+import UpdateBirthYear from "./UpdateBirthYear";
+
 const Authors = ({ data, isLoading }) => {
 
     if (isLoading) {
@@ -27,6 +29,7 @@ const Authors = ({ data, isLoading }) => {
                     ))}
                 </tbody>
             </table>
+            <UpdateBirthYear/>
         </div>
     );
 };
