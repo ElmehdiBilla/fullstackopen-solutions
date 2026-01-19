@@ -1,5 +1,6 @@
 const Book = require('./models/book');
 const Author = require('./models/author');
+const { GraphQLError } = require('graphql');
 
 const resolvers = {
     Query: {
@@ -27,13 +28,49 @@ const resolvers = {
     },
     Mutation: {
         addBook: async (root, args) => {
+            if (args.title.length < 5) {
+                throw new GraphQLError(`The book title must be 5 or more characters long`, {
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        invalidArgs: args.title,
+                    },
+                });
+            }
+            if (args.author.length < 4) {
+                throw new GraphQLError(`The author name must be 4 or more characters long`, {
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        invalidArgs: args.author,
+                    },
+                });
+            }
+            const BookExists = await Book.exists({ title: args.title });
+
+            if (BookExists) {
+                throw new GraphQLError(`book title must be unique`, {
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        invalidArgs: args.title,
+                    },
+                });
+            }
             let author = await Author.findOne({ name: args.author });
             if (!author) {
                 author = new Author({ born: null, name: args.author });
                 await author.save();
             }
             const book = new Book({ ...args, author: author._id });
-            await book.save();
+            try {
+                await book.save();
+            } catch (error) {
+                throw new GraphQLError(`Saving Book failed: ${error.message}`, {
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        invalidArgs: { ...args },
+                        error,
+                    },
+                });
+            }
             return book.populate('author');
         },
         editAuthor: async (root, args) => {
@@ -43,7 +80,17 @@ const resolvers = {
                 return null;
             }
             author.born = args.setBornTo;
-            await author.save();
+            try {
+                await author.save();
+            } catch (error) {
+                throw new GraphQLError(`Saving Author failed: ${error.message}`, {
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        invalidArgs: { ...args },
+                        error,
+                    },
+                });
+            }
             return author;
         },
     },
