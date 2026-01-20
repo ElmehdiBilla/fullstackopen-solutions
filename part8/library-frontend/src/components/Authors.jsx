@@ -1,6 +1,8 @@
-import UpdateBirthYear from "./UpdateBirthYear";
+import { useState } from 'react';
+import UpdateBirthYear from './UpdateBirthYear';
 
 const Authors = ({ data, isLoading }) => {
+    const [token] = useState(localStorage.getItem('user-token'));
 
     if (isLoading) {
         return <div>loading...</div>;
@@ -29,9 +31,9 @@ const Authors = ({ data, isLoading }) => {
                     ))}
                 </tbody>
             </table>
-            <UpdateBirthYear authors={data.allAuthors} />
+            {token && <UpdateBirthYear authors={data.allAuthors} />}
         </div>
     );
 };
 
-export default Authors
+export default Authors;
