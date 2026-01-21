@@ -6,8 +6,9 @@ import NewBook from './components/NewBook';
 import LoginForm from './components/LoginForm';
 import Notify from './components/Notify';
 
-import { ALL_AUTHORS, ALL_BOOKS } from './queries';
+import { ALL_AUTHORS, ALL_BOOKS, ME } from './queries';
 import { useState } from 'react';
+import Recommendations from './components/Recommendations';
 
 const App = () => {
     const navigate = useNavigate();
@@ -15,6 +16,7 @@ const App = () => {
     const [errorMessage, setErrorMessage] = useState(null);
     const { loading: authorsDataLoading, data: authorsData } = useQuery(ALL_AUTHORS);
     const { loading: booksDataLoading, data: booksData } = useQuery(ALL_BOOKS);
+    const { loading: UserDataLoading, data: userData } = useQuery(ME);
 
     const onLogout = () => {
         setToken(null);
@@ -43,6 +45,9 @@ const App = () => {
                         <Link to='/add'>
                             <button>Add book</button>
                         </Link>
+                        <Link to='/recommendations'>
+                            <button>recommend</button>
+                        </Link>
                         <button onClick={onLogout}>Logout</button>
                     </>
                 ) : (
@@ -58,6 +63,7 @@ const App = () => {
                 <Route path='/books' element={<Books isLoading={booksDataLoading} data={booksData} />} />
                 {token && <Route path='/add' element={<NewBook />} />}
                 <Route path='/login' element={<LoginForm setToken={setToken} setError={notify} />} />
+                <Route path='/recommendations' element={<Recommendations isLoading={booksDataLoading} user={userData} data={booksData} />} />
             </Routes>
         </div>
     );
