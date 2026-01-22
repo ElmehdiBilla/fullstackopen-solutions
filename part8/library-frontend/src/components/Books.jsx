@@ -1,8 +1,4 @@
-import { useState } from 'react';
-
-const Books = ({ data, isLoading }) => {
-    const [selectedGenre, setSelectedGenre] = useState('all genres');
-
+const Books = ({ data, isLoading, genres, selectedGenre, handleFilter }) => {
     if (isLoading) {
         return <div>loading...</div>;
     }
@@ -11,8 +7,7 @@ const Books = ({ data, isLoading }) => {
         return null;
     }
 
-    const genres = [...new Set(data.allBooks.flatMap((b) => b.genres)), 'all genres'];
-    const books = selectedGenre === 'all genres' ? data.allBooks : data.allBooks.filter((b) => b.genres.includes(selectedGenre) && b);
+    const books = data.allBooks;
 
     return (
         <div>
@@ -37,7 +32,7 @@ const Books = ({ data, isLoading }) => {
                 </tbody>
             </table>
             {genres.map((g, i) => (
-                <button key={i} onClick={() => setSelectedGenre(g)}>
+                <button key={i} onClick={() => handleFilter(g)}>
                     {g}
                 </button>
             ))}

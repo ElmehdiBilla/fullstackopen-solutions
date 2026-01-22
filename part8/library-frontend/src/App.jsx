@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client/react';
+import { useLazyQuery, useQuery } from '@apollo/client/react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Authors from './components/Authors';
 import Books from './components/Books';
@@ -6,8 +6,8 @@ import NewBook from './components/NewBook';
 import LoginForm from './components/LoginForm';
 import Notify from './components/Notify';
 
-import { ALL_AUTHORS, ALL_BOOKS, ME } from './queries';
-import { useState } from 'react';
+import { ALL_AUTHORS, ALL_BOOKS, ALL_GENRES, ME } from './queries';
+import { useEffect, useState } from 'react';
 import Recommendations from './components/Recommendations';
 
 const App = () => {
@@ -15,8 +15,21 @@ const App = () => {
     const [token, setToken] = useState(localStorage.getItem('user-token'));
     const [errorMessage, setErrorMessage] = useState(null);
     const { loading: authorsDataLoading, data: authorsData } = useQuery(ALL_AUTHORS);
-    const { loading: booksDataLoading, data: booksData } = useQuery(ALL_BOOKS);
-    const { loading: UserDataLoading, data: userData } = useQuery(ME);
+    const [allBooks, { loading: booksDataLoading, data: booksData }] = useLazyQuery(ALL_BOOKS);
+    const { data: userData } = useQuery(ME); 
+    
+    const { data: genresData } = useQuery(ALL_GENRES);
+    const [selectedGenre, setSelectedGenre] = useState('all genres');
+    const genres = genresData ? [...new Set(genresData.allBooks.flatMap((b) => b.genres)), 'all genres'] : [];   
+
+    useEffect(() => {
+        allBooks({ variables: { genres: [] } });
+    }, [allBooks]);
+
+    const handleFilter = (g) => {
+        setSelectedGenre(g);
+        allBooks({ variables: { genres: g !== 'all genres' ? [g] : [] } });
+    };
 
     const onLogout = () => {
         setToken(null);
@@ -60,10 +73,24 @@ const App = () => {
 
             <Routes>
                 <Route path='/' element={<Authors isLoading={authorsDataLoading} data={authorsData} />} />
-                <Route path='/books' element={<Books isLoading={booksDataLoading} data={booksData} />} />
+                <Route
+                    path='/books'
+                    element={
+                        <Books
+                            isLoading={booksDataLoading}
+                            data={booksData}
+                            genres={genres}
+                            selectedGenre={selectedGenre}
+                            handleFilter={handleFilter}
+                        />
+                    }
+                />
                 {token && <Route path='/add' element={<NewBook />} />}
                 <Route path='/login' element={<LoginForm setToken={setToken} setError={notify} />} />
-                <Route path='/recommendations' element={<Recommendations isLoading={booksDataLoading} user={userData} data={booksData} />} />
+                <Route
+                    path='/recommendations'
+                    element={<Recommendations isLoading={booksDataLoading} user={userData} data={booksData} />}
+                />
             </Routes>
         </div>
     );
