@@ -1,14 +1,23 @@
-const Recommendations = ({ isLoading, user, data }) => {
+import { useQuery } from '@apollo/client/react';
+import { ALL_BOOKS } from '../queries';
 
-    if (isLoading) {
+const Recommendations = ({ isLoading, user }) => {
+    const favoriteGenre = user?.me?.favoriteGenre;
+
+    const { loading: BooksDataLoading, data: booksData } = useQuery(ALL_BOOKS, {
+        variables: { genres: [favoriteGenre] },
+        skip: !favoriteGenre,
+    });
+
+    if (isLoading || BooksDataLoading) {
         return <div>loading...</div>;
     }
 
-    if (!user || !data) {
+    if (!user || !booksData) {
         return null;
     }
-		
-    const books = data.allBooks.filter((b) => b.genres.includes(user.me.favoriteGenre));
+
+    const books = booksData.allBooks;
 
     return (
         <div>

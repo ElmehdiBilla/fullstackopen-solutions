@@ -16,7 +16,7 @@ const App = () => {
     const [errorMessage, setErrorMessage] = useState(null);
     const { loading: authorsDataLoading, data: authorsData } = useQuery(ALL_AUTHORS);
     const [allBooks, { loading: booksDataLoading, data: booksData }] = useLazyQuery(ALL_BOOKS);
-    const { data: userData } = useQuery(ME); 
+    const { loading: userDataLoading, data: userData } = useQuery(ME); 
     
     const { data: genresData } = useQuery(ALL_GENRES);
     const [selectedGenre, setSelectedGenre] = useState('all genres');
@@ -85,11 +85,11 @@ const App = () => {
                         />
                     }
                 />
-                {token && <Route path='/add' element={<NewBook />} />}
+                {token && <Route path='/add' element={<NewBook user={userData} />} />}
                 <Route path='/login' element={<LoginForm setToken={setToken} setError={notify} />} />
                 <Route
                     path='/recommendations'
-                    element={<Recommendations isLoading={booksDataLoading} user={userData} data={booksData} />}
+                    element={<Recommendations isLoading={userDataLoading} user={userData} />}
                 />
             </Routes>
         </div>
