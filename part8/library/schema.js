@@ -21,6 +21,9 @@ const typeDefs = /* GraphQL */ `
         published: Int!
         genres: [String!]
     }
+    type Subscription {
+        bookAdded: Book!
+    }
     type Query {
         bookCount: Int!
         authorCount: Int!
