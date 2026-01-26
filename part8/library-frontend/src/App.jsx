@@ -1,4 +1,4 @@
-import { useLazyQuery, useQuery } from '@apollo/client/react';
+import { useLazyQuery, useQuery, useSubscription } from '@apollo/client/react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Authors from './components/Authors';
 import Books from './components/Books';
@@ -6,7 +6,7 @@ import NewBook from './components/NewBook';
 import LoginForm from './components/LoginForm';
 import Notify from './components/Notify';
 
-import { ALL_AUTHORS, ALL_BOOKS, ALL_GENRES, ME } from './queries';
+import { ALL_AUTHORS, ALL_BOOKS, ALL_GENRES, BOOK_ADDED, ME } from './queries';
 import { useEffect, useState } from 'react';
 import Recommendations from './components/Recommendations';
 
@@ -21,6 +21,13 @@ const App = () => {
     const { data: genresData } = useQuery(ALL_GENRES);
     const [selectedGenre, setSelectedGenre] = useState('all genres');
     const genres = genresData ? [...new Set(genresData.allBooks.flatMap((b) => b.genres)), 'all genres'] : [];   
+
+    useSubscription(BOOK_ADDED, {
+        onData: ({ data }) => {
+            const addedBook = data.data.bookAdded;            
+            notify(`${addedBook.title} added`);
+        },
+    });
 
     useEffect(() => {
         allBooks({ variables: { genres: [] } });
