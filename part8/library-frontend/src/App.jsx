@@ -1,4 +1,4 @@
-import { useLazyQuery, useQuery, useSubscription } from '@apollo/client/react';
+import { useApolloClient, useLazyQuery, useQuery, useSubscription } from '@apollo/client/react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Authors from './components/Authors';
 import Books from './components/Books';
@@ -9,6 +9,7 @@ import Notify from './components/Notify';
 import { ALL_AUTHORS, ALL_BOOKS, ALL_GENRES, BOOK_ADDED, ME } from './queries';
 import { useEffect, useState } from 'react';
 import Recommendations from './components/Recommendations';
+import { addBookToCache } from './utils/apolloCache';
 
 const App = () => {
     const navigate = useNavigate();
@@ -22,10 +23,13 @@ const App = () => {
     const [selectedGenre, setSelectedGenre] = useState('all genres');
     const genres = genresData ? [...new Set(genresData.allBooks.flatMap((b) => b.genres)), 'all genres'] : [];   
 
+     const client = useApolloClient();
+
     useSubscription(BOOK_ADDED, {
         onData: ({ data }) => {
             const addedBook = data.data.bookAdded;            
             notify(`${addedBook.title} added`);
+            addBookToCache(client.cache, addedBook);
         },
     });
 
