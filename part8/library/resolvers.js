@@ -29,8 +29,8 @@ const resolvers = {
         },
     },
     Author: {
-        bookCount: async (root) => {
-            return await Book.find({ author: root.id }).countDocuments();
+        bookCount: async (root, args, { loaders }) => {
+            return loaders.bookCount.load(root._id);
         },
     },
     Mutation: {
@@ -154,7 +154,7 @@ const resolvers = {
     },
     Subscription: {
         bookAdded: {
-            subscribe: () => pubsub.asyncIterableIterator('BOOK_ADDED')
+            subscribe: () => pubsub.asyncIterableIterator('BOOK_ADDED'),
         },
     },
 };

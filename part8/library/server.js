@@ -12,6 +12,7 @@ const jwt = require('jsonwebtoken');
 const resolvers = require('./resolvers');
 const typeDefs = require('./schema');
 const User = require('./models/user');
+const createLoaders = require('./loaders');
 
 const getUserFromAuthHeader = async (auth) => {
     if (!auth || !auth.startsWith('Bearer ')) {
@@ -60,7 +61,7 @@ const startServer = async (port) => {
             context: async ({ req }) => {
                 const auth = req.headers.authorization;
                 const currentUser = await getUserFromAuthHeader(auth);
-                return { currentUser };
+                return { currentUser, loaders: createLoaders() };
             },
         }),
     );
