@@ -1,0 +1,16 @@
+{
+  "name": "typescript_exercises",
+  "version": "1.0.0",
+  "description": "solution for typescript exercises in part9 ",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "calculateBmi": "ts-node bmiCalculator.ts"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
