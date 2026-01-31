@@ -1,4 +1,4 @@
-import { isNotNumber } from "./utils";
+import { isNotNumber } from './utils';
 
 interface bmiValues {
     height: number;
@@ -19,22 +19,24 @@ const parseArguments = (args: string[]): bmiValues => {
     }
 };
 
-const calculateBmi = (height: number, weight: number): string => {
+export const calculateBmi = (height: number, weight: number): string => {
     const bmi = weight / Math.pow(height / 100, 2);
 
     if (bmi >= 30) return 'Obese range';
     if (bmi >= 25) return 'Overweight range';
-    if (bmi >= 18.5) return 'Normal Weight';
+    if (bmi >= 18.5) return 'Normal range';
     return 'Underweight range';
 };
 
-try {
-    const { height, weight } = parseArguments(process.argv);
-    console.log(calculateBmi(height, weight));
-} catch (error: unknown) {
-    let errorMessage = 'Something bad happened.';
-    if (error instanceof Error) {
-        errorMessage += ' Error: ' + error.message;
+if (require.main === module) {
+    try {
+        const { height, weight } = parseArguments(process.argv);
+        console.log(calculateBmi(height, weight));
+    } catch (error: unknown) {
+        let errorMessage = 'Something bad happened.';
+        if (error instanceof Error) {
+            errorMessage += ' Error: ' + error.message;
+        }
+        console.log(errorMessage);
     }
-    console.log(errorMessage);
 }
