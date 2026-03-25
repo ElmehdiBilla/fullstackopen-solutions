@@ -1,10 +1,10 @@
 interface statistic {
     periodLength: number;
     trainingDays: number;
-    success: Boolean;
+    success: boolean;
     rating: number;
     ratingDescription: string;
-    target: Number;
+    target: number;
     average: number;
 }
 
