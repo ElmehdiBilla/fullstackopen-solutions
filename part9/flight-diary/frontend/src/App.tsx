@@ -15,12 +15,20 @@ function App() {
     const [visibility, setVisibility] = useState('');
     const [weather, setWeather] = useState('');
     const [comment, setComment] = useState('');
+    const [error, setError] = useState('');
 
     useEffect(() => {
         axios.get<Diary[]>('http://localhost:3000/api/diaries').then((response) => {
             setDiaries(response.data);
         });
     }, []);
+
+    const notify = (message: string) => {
+        setError(message)
+        setTimeout(() => {
+            setError('')
+        }, 3000);
+    }
 
     const diaryCreation = (event: React.SyntheticEvent) => {
         event.preventDefault();
@@ -30,19 +38,27 @@ function App() {
             weather,
             comment,
         };
-        axios.post<Diary>('http://localhost:3000/api/diaries', diaryToAdd).then((response) => {
-            setDiaries(diaries.concat(response.data));
-        });
 
-        setDate('');
-        setVisibility('');
-        setWeather('');
-        setComment('');
+        axios.post<Diary>('http://localhost:3000/api/diaries', diaryToAdd)
+        .then((response) => {
+            setDiaries(diaries.concat(response.data));
+            setDate('');
+            setVisibility('');
+            setWeather('');
+            setComment('');
+        }).catch(error => {
+            if (axios.isAxiosError(error)) {
+                notify(error.response?.data);
+            } else {
+                notify('Unknown error');
+            }
+        });
     };
 
     return (
         <div>
             <h2>Add new entry</h2>
+            <p style={{color:"red"}} >{error}</p>
             <form onSubmit={diaryCreation}>
                 <p>
                     <label htmlFor='date'>date</label>
