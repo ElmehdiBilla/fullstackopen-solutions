@@ -1,12 +1,16 @@
 import { Typography } from '@mui/material';
-import { Patient } from '../../types';
+import { Diagnosis, Patient } from '../../types';
 import { Female, Male } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import patientService from '../../services/patients';
 
-const PatientPage = () => {
+interface Props {
+    diagnoses: Diagnosis[];
+}
+
+const PatientPage = ({ diagnoses }: Props) => {
     const { id } = useParams<{ id: string }>();
     const [patient, setPatient] = useState<Patient>();
 
@@ -53,7 +57,7 @@ const PatientPage = () => {
                         <ul>
                             {entry.diagnosisCodes?.map((code) => (
                                 <li>
-                                    <Typography>{code}</Typography>
+                                    <Typography>{code} {diagnoses.find((diagnosis) => diagnosis.code === code)?.name}</Typography>
                                 </li>
                             ))}
                         </ul>
