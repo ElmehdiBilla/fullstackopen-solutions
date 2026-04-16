@@ -7,7 +7,7 @@ import axios from 'axios';
 import patientService from '../../services/patients';
 
 const PatientPage = () => {
-    const { id  } = useParams<{id: string}>();
+    const { id } = useParams<{ id: string }>();
     const [patient, setPatient] = useState<Patient>();
 
     useEffect(() => {
@@ -41,6 +41,25 @@ const PatientPage = () => {
             </Typography>
             <Typography variant='h6'>ssn: {patient?.ssn}</Typography>
             <Typography variant='h6'>occupation: {patient?.occupation}</Typography>
+            <Typography variant='h5' sx={{ marginBottom: '0.5em', marginTop: '0.5em' }}>
+                entries
+            </Typography>
+            {patient?.entries.map((entry) => {
+                return (
+                    <div>
+                        <Typography variant='h6'>
+                            {entry.date} {entry.description}
+                        </Typography>
+                        <ul>
+                            {entry.diagnosisCodes?.map((code) => (
+                                <li>
+                                    <Typography>{code}</Typography>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            })}
         </div>
     );
 };
