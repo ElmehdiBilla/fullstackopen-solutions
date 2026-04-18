@@ -1,10 +1,19 @@
-import { Card, CardContent, Typography } from '@mui/material';
-import { Diagnosis, Patient, HospitalEntry, OccupationalHealthcareEntry, HealthCheckEntry, Entry } from '../../types';
+import { Alert, Button, Card, CardContent, Typography } from '@mui/material';
+import {
+    Diagnosis,
+    Patient,
+    HospitalEntry,
+    OccupationalHealthcareEntry,
+    HealthCheckEntry,
+    Entry,
+    EntryFormValues,
+} from '../../types';
 import { Favorite, Female, LocalHospital, Male, MedicalServices, Work } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import patientService from '../../services/patients';
+import AddEntryForm from './AddEntryForm';
 
 interface Props {
     diagnoses: Diagnosis[];
@@ -19,7 +28,7 @@ const assertNever = (value: never): never => {
 const EntryDetails = ({ entry }: { entry: Entry }) => {
     switch (entry.type) {
         case 'Hospital':
-            return <HospitalElement entry={entry}/>;
+            return <HospitalElement entry={entry} />;
 
         case 'OccupationalHealthcare':
             return <OccupationalHealthcareElement entry={entry} />;
@@ -32,7 +41,7 @@ const EntryDetails = ({ entry }: { entry: Entry }) => {
     }
 };
 
-const HospitalElement = ({ entry }: { entry: HospitalEntry  }) => {
+const HospitalElement = ({ entry }: { entry: HospitalEntry }) => {
     return (
         <Card key={entry.id} sx={{ marginBottom: '0.5em' }}>
             <CardContent>
@@ -80,6 +89,8 @@ const HealthCheckElement = ({ entry }: { entry: HealthCheckEntry }) => {
 const PatientPage = ({ diagnoses: _diagnoses }: Props) => {
     const { id } = useParams<{ id: string }>();
     const [patient, setPatient] = useState<Patient>();
+    const [error, setError] = useState<string>();
+    const [formVisibility, setFormVisibility] = useState<boolean>(false);
 
     useEffect(() => {
         if (!id) return;
@@ -105,6 +116,29 @@ const PatientPage = ({ diagnoses: _diagnoses }: Props) => {
         void fetchPatient();
     }, [id]);
 
+    const closeForm = (): void => setFormVisibility(false);
+
+    const submitNewEntry = async (values: EntryFormValues) => {
+        if (!id) return;
+
+        try {
+            const patient = await patientService.addEntry(id, values);
+            setPatient(patient);
+        } catch (e: unknown) {
+            if (axios.isAxiosError(e)) {
+                if (e?.response?.data) {
+                    console.error(e.response?.data?.error?.[0]?.message);
+                    setError(e.response?.data?.error?.[0]?.message);
+                } else {
+                    setError('Unrecognized axios error');
+                }
+            } else {
+                console.error('Unknown error', e);
+                setError('Unknown error');
+            }
+        }
+    };
+
     return (
         <div className='App'>
             <Typography variant='h4' sx={{ marginBottom: '0.5em' }}>
@@ -112,10 +146,26 @@ const PatientPage = ({ diagnoses: _diagnoses }: Props) => {
             </Typography>
             <Typography variant='h6'>ssn: {patient?.ssn}</Typography>
             <Typography variant='h6'>occupation: {patient?.occupation}</Typography>
+            {error && (
+                <Alert sx={{ marginBlock: 2 }} severity='error'>
+                    {error}
+                </Alert>
+            )}
+            <Button
+                sx={{ marginBlock: 2, display: !formVisibility ? 'block' : 'none' }}
+                variant='contained'
+                size='large'
+                color='primary'
+                onClick={() => setFormVisibility(true)}>
+                Add New Entry
+            </Button>
+            <AddEntryForm visibility={formVisibility} onSubmit={submitNewEntry} onClose={closeForm} />
             <Typography variant='h5' sx={{ marginBottom: '0.5em', marginTop: '0.5em' }}>
                 entries
             </Typography>
-            {patient?.entries.map((entry) => <EntryDetails entry={entry}/>)}
+            {patient?.entries.map((entry) => (
+                <EntryDetails entry={entry} />
+            ))}
         </div>
     );
 };
