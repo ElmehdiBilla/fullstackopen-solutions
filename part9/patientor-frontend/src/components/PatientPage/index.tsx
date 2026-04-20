@@ -86,7 +86,7 @@ const HealthCheckElement = ({ entry }: { entry: HealthCheckEntry }) => {
     );
 };
 
-const PatientPage = ({ diagnoses: _diagnoses }: Props) => {
+const PatientPage = ({ diagnoses }: Props) => {
     const { id } = useParams<{ id: string }>();
     const [patient, setPatient] = useState<Patient>();
     const [error, setError] = useState<string>();
@@ -159,7 +159,12 @@ const PatientPage = ({ diagnoses: _diagnoses }: Props) => {
                 onClick={() => setFormVisibility(true)}>
                 Add New Entry
             </Button>
-            <AddEntryForm visibility={formVisibility} onSubmit={submitNewEntry} onClose={closeForm} />
+            <AddEntryForm
+                visibility={formVisibility}
+                onSubmit={submitNewEntry}
+                onClose={closeForm}
+                diagnoses={diagnoses}
+            />
             <Typography variant='h5' sx={{ marginBottom: '0.5em', marginTop: '0.5em' }}>
                 entries
             </Typography>
