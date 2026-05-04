@@ -5,6 +5,7 @@ import theme from '../theme';
 
 const styles = StyleSheet.create({
     container: {
+        flexDirection: 'row',
         paddingTop: Constants.statusBarHeight,
         backgroundColor: theme.colors.textPrimary,
     },
@@ -13,7 +14,8 @@ const styles = StyleSheet.create({
 const AppBar = () => {
     return (
         <View style={styles.container}>
-            <AppBarTab text='Repositories' />
+            <AppBarTab text='Repositories' to='/' />
+            <AppBarTab text='Sign in' to='/signin' />
         </View>
     );
 };
