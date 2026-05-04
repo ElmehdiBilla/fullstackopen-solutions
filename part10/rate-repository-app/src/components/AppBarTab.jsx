@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     text: {
-        color: 'white',
+        color: theme.colors.white,
         fontSize: 24,
         fontWeight: theme.fontWeights.bold,
     },
