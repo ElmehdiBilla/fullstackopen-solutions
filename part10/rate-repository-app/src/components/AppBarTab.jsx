@@ -13,9 +13,9 @@ const styles = StyleSheet.create({
     },
 });
 
-const AppBarTab = ({ text, to }) => {
+const AppBarTab = ({ text, to, onPress }) => {
     return (
-        <Link style={styles.container} to={to}>
+        <Link style={styles.container} to={to} onPress={onPress}>
             <Text style={styles.text}>{text}</Text>
         </Link>
     );

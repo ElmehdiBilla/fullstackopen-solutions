@@ -7,7 +7,6 @@ import AuthStorage from './src/utils/authStorage';
 import AuthStorageContext from './src/contexts/AuthStorageContext';
 
 const authStorage = new AuthStorage();
-authStorage.getAccessToken().then(r=> console.log(r));
 
 const apolloClient = createApolloClient(authStorage);
 
