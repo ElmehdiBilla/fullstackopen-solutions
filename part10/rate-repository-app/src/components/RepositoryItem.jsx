@@ -32,14 +32,14 @@ const styles = StyleSheet.create({
     },
 });
 
-const formatter = new Intl.NumberFormat('en', {
+export const formatter = new Intl.NumberFormat('en', {
     notation: 'compact',
     compactDisplay: 'short',
 });
 
 const RepositoryItem = ({ item }) => {
     return (
-        <View style={styles.container}>
+        <View testID='repositoryItem' style={styles.container}>
             <View style={styles.header}>
                 <Image style={styles.avatar} source={{ uri: item.ownerAvatarUrl }} />
                 <View style={styles.headerContent}>
