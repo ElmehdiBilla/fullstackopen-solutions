@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     headerContent: {
+        flex:1,
         paddingLeft: 10,
         justifyContent: 'space-evenly',
         alignItems: 'flex-start',

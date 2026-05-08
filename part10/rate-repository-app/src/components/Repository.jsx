@@ -1,30 +1,17 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useParams } from 'react-router-native';
-import * as Linking from 'expo-linking';
 import { useQuery } from '@apollo/client/react';
-import Text from './Text';
-import theme from '../theme';
-import RepositoryItem from './RepositoryItem';
 import { GET_REPOSITORY } from '../graphql/queries';
+import ReviewItem from './ReviewItem';
+import RepositoryView from './RepositoryView';
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: theme.colors.white,
-        padding: 10,
-    },
-    button: {
-        backgroundColor: theme.colors.primary,
-        paddingVertical: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    buttonText: {
-        color: theme.colors.white,
-        fontSize: theme.fontSizes.subheading,
-        fontWeight: theme.fontWeights.bold,
+    separator: {
+        height: 10,
     },
 });
+
+const ItemSeparator = () => <View style={styles.separator} />;
 
 const Repository = () => {
     let { id } = useParams();
@@ -36,14 +23,22 @@ const Repository = () => {
     });
 
     const repo = data?.repository ? data?.repository : {};
+    const reviews = repo ? repo?.reviews?.edges?.map((edge) => edge.node) : [];
 
     return (
-        <View style={styles.container}>
-            <RepositoryItem item={repo} />
-            <Pressable style={styles.button} onPress={() => Linking.openURL(repo.url)}>
-                <Text style={styles.buttonText}>Open in GitHub</Text>
-            </Pressable>
-        </View>
+        <FlatList
+            data={reviews}
+            ItemSeparatorComponent={ItemSeparator}
+            renderItem={({ item }) => <ReviewItem review={item} />}
+            keyExtractor={({ id }) => id}
+            ListHeaderComponent={() => (
+                <>
+                    <RepositoryView repository={repo} />
+                    <ItemSeparator />
+                </>
+            )}
+            stickyHeaderIndices={[0]}
+        />
     );
 };
 

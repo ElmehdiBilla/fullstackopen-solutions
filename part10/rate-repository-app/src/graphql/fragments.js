@@ -14,3 +14,16 @@ export const REPO_INFO = gql`
         url
     }
 `;
+
+export const REVIEW_INFO = gql`
+    fragment ReviewInfo on Review {
+        id
+        text
+        rating
+        createdAt
+        user {
+            id
+            username
+        }
+    }
+`;
