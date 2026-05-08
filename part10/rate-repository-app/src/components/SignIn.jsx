@@ -56,20 +56,7 @@ const validationSchema = yup.object().shape({
     password: yup.string().required('Password is required'),
 });
 
-const SignIn = () => {
-    const navigate = useNavigate();
-    const [signIn] = useSignIn();
-    const onSubmit = async (values) => {
-        const { username, password } = values;
-        
-        try {
-            const { data } = await signIn({ username, password });
-            console.log(data);
-            navigate('/')
-        } catch (e) {
-            console.log(e);
-        }
-    };
+export const SignInContainer = ({ onSubmit }) => {
     const formik = useFormik({
         initialValues,
         validationSchema,
@@ -82,10 +69,7 @@ const SignIn = () => {
                 placeholder='Username'
                 value={formik.values.username}
                 onChangeText={formik.handleChange('username')}
-                style={[
-                    styles.textInput,
-                    formik.touched.username && formik.errors.username && (styles.textInputError),
-                ]}
+                style={[styles.textInput, formik.touched.username && formik.errors.username && styles.textInputError]}
                 onBlur={formik.handleBlur('username')}
             />
             {formik.touched.username && formik.errors.username && (
@@ -96,10 +80,7 @@ const SignIn = () => {
                 value={formik.values.password}
                 onChangeText={formik.handleChange('password')}
                 secureTextEntry
-                style={[
-                    styles.textInput,
-                    formik.touched.password && formik.errors.password && (styles.textInputError),
-                ]}
+                style={[styles.textInput, formik.touched.password && formik.errors.password && styles.textInputError]}
                 onBlur={formik.handleBlur('password')}
             />
             {formik.touched.password && formik.errors.password && (
@@ -110,6 +91,23 @@ const SignIn = () => {
             </Pressable>
         </View>
     );
+};
+
+const SignIn = () => {
+    const navigate = useNavigate();
+    const [signIn] = useSignIn();
+    const onSubmit = async (values) => {
+        const { username, password } = values;
+
+        try {
+            const { data } = await signIn({ username, password });
+            console.log(data);
+            navigate('/');
+        } catch (e) {
+            console.log(e);
+        }
+    };
+    return <SignInContainer onSubmit={onSubmit} />;
 };
 
 export default SignIn;
