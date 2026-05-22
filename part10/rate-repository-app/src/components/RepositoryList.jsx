@@ -3,17 +3,32 @@ import RepositoryItem from './RepositoryItem';
 import useRepositories from '../hooks/useRepositories';
 import { useNavigate } from 'react-router-native';
 import OrderDropdown from './OrderDropdown';
+import { Searchbar } from 'react-native-paper';
+import theme from '../theme';
+import { useState } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 
 const styles = StyleSheet.create({
     separator: {
         height: 10,
     },
+    ListHeaderComponent: {
+        backgroundColor: theme.colors.gray,
+        padding: 8,
+    },
+    Searchbar: {
+        backgroundColor: theme.colors.white,
+    },
 });
 
 const ItemSeparator = () => <View style={styles.separator} />;
 
-export const RepositoryListContainer = ({ repositories, OrderDropdown }) => {
+export const RepositoryListContainer = ({ repositories, OrderDropdown, setSearchKeyword }) => {
     let navigate = useNavigate();
+    const [searchQuery, setSearchQuery] = useState('');
+    const debounced = useDebouncedCallback((value) => {
+        setSearchKeyword(value);
+    }, 500);
     const repositoryNodes = repositories ? repositories.edges.map((edge) => edge.node) : [];
 
     return (
@@ -26,18 +41,33 @@ export const RepositoryListContainer = ({ repositories, OrderDropdown }) => {
                 </Pressable>
             )}
             keyExtractor={(item) => item.id}
-            ListHeaderComponent={OrderDropdown}
+            ListHeaderComponent={
+                <View style={styles.ListHeaderComponent}>
+                    <Searchbar
+                        style={styles.Searchbar}
+                        placeholder='Search'
+                        value={searchQuery}
+                        onChangeText={(value) => {
+                            setSearchQuery(value);
+                            debounced(value);
+                        }}
+                    />
+                    {OrderDropdown}
+                </View>
+            }
             stickyHeaderIndices={[0]}
         />
     );
 };
 
 const RepositoryList = () => {
-    const { repositories, orderBy, orderDirection, setOrderBy, setOrderDerection } = useRepositories();
+    const { repositories, orderBy, orderDirection, setOrderBy, setOrderDerection, setSearchKeyword } =
+        useRepositories();
 
     return (
         <RepositoryListContainer
             repositories={repositories}
+            setSearchKeyword={setSearchKeyword}
             OrderDropdown={
                 <OrderDropdown
                     orderBy={orderBy}

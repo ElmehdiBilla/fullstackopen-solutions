@@ -4,7 +4,7 @@ import theme from '../theme';
 
 const styles = StyleSheet.create({
     dropdown: {
-        backgroundColor: theme.colors.white,
+        backgroundColor: 'transparent',
         borderColor: theme.colors.gray,
         borderWidth: 1,
         fontSize: theme.fontSizes.subheading,

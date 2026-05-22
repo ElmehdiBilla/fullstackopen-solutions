@@ -5,13 +5,14 @@ import { useState } from 'react';
 const useRepositories = () => {
     const [orderBy, setOrderBy] = useState('CREATED_AT');
     const [orderDirection, setOrderDerection] = useState('DESC');
+    const [searchKeyword, setSearchKeyword] = useState('');
 
     const { data, loading } = useQuery(GET_REPOSITORIES, {
-        variables: { orderBy, orderDirection },
+        variables: { orderBy, orderDirection, searchKeyword },
         fetchPolicy: 'cache-and-network',
     });
 
-    return { repositories: data?.repositories, loading, orderBy, orderDirection, setOrderBy, setOrderDerection };
+    return { repositories: data?.repositories, loading, orderBy, orderDirection, setOrderBy, setOrderDerection, setSearchKeyword };
 };
 
 export default useRepositories;
