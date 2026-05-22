@@ -4,7 +4,8 @@ import useAuthStorage from '../hooks/useAuthStorage';
 import Constants from 'expo-constants';
 import AppBarTab from './AppBarTab';
 import theme from '../theme';
-import { ME } from '../graphql/queries';
+import { GET_CURRENT_USER } from '../graphql/queries';
+import { useNavigate } from 'react-router-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -15,13 +16,15 @@ const styles = StyleSheet.create({
 });
 
 const AppBar = () => {
+    let navigate = useNavigate();
     const apolloClient = useApolloClient();
     const authStorage = useAuthStorage();
-    const { data } = useQuery(ME);
+    const { data } = useQuery(GET_CURRENT_USER);
 
     const signOut = async () => {
         await authStorage.removeAccessToken();
         await apolloClient.resetStore();
+        navigate('/');
     };
 
     return (
@@ -36,6 +39,7 @@ const AppBar = () => {
                 ) : (
                     <>
                         <AppBarTab text='Create a review' to='/review' />
+                        <AppBarTab text='My Reviews' to='/myreviews' />
                         <AppBarTab text='Sign out' onPress={signOut} />
                     </>
                 )}
