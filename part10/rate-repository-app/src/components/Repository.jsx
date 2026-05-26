@@ -15,12 +15,28 @@ const ItemSeparator = () => <View style={styles.separator} />;
 
 const Repository = () => {
     let { id } = useParams();
-    const { data } = useQuery(GET_REPOSITORY, {
+    const { data, loading, fetchMore } = useQuery(GET_REPOSITORY, {
         variables: {
             id,
+            first:5,
         },
         fetchPolicy: 'cache-and-network',
     });
+
+        const handleFetchMore = () => {
+            const canFetchMore = !loading && data?.repository.reviews.pageInfo.hasNextPage;
+
+            if (!canFetchMore) {
+                return;
+            }
+
+            fetchMore({
+                variables: {
+                    first: 5,
+                    after: data.repository.reviews.pageInfo.endCursor,
+                },
+            });
+        };
 
     const repo = data?.repository ? data?.repository : {};
     const reviews = repo ? repo?.reviews?.edges?.map((edge) => edge.node) : [];
@@ -38,6 +54,8 @@ const Repository = () => {
                 </>
             )}
             stickyHeaderIndices={[0]}
+            onEndReached={handleFetchMore}
+            onEndReachedThreshold={0.5}
         />
     );
 };

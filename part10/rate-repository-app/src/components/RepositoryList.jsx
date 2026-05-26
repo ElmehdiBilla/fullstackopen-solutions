@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
 
 const ItemSeparator = () => <View style={styles.separator} />;
 
-export const RepositoryListContainer = ({ repositories, OrderDropdown, setSearchKeyword }) => {
+export const RepositoryListContainer = ({ repositories, OrderDropdown, setSearchKeyword, onEndReached }) => {
     let navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const debounced = useDebouncedCallback((value) => {
@@ -56,12 +56,14 @@ export const RepositoryListContainer = ({ repositories, OrderDropdown, setSearch
                 </View>
             }
             stickyHeaderIndices={[0]}
+            onEndReached={onEndReached}
+            onEndReachedThreshold={0.5}
         />
     );
 };
 
 const RepositoryList = () => {
-    const { repositories, orderBy, orderDirection, setOrderBy, setOrderDerection, setSearchKeyword } =
+    const { repositories, fetchMore, orderBy, orderDirection, setOrderBy, setOrderDerection, setSearchKeyword } =
         useRepositories();
 
     return (
@@ -76,6 +78,7 @@ const RepositoryList = () => {
                     setOrderDerection={setOrderDerection}
                 />
             }
+            onEndReached={fetchMore}
         />
     );
 };

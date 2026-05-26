@@ -7,12 +7,40 @@ const useRepositories = () => {
     const [orderDirection, setOrderDerection] = useState('DESC');
     const [searchKeyword, setSearchKeyword] = useState('');
 
-    const { data, loading } = useQuery(GET_REPOSITORIES, {
-        variables: { orderBy, orderDirection, searchKeyword },
+    const { data, loading, fetchMore } = useQuery(GET_REPOSITORIES, {
+        variables: { first: 5, orderBy, orderDirection, searchKeyword },
         fetchPolicy: 'cache-and-network',
     });
 
-    return { repositories: data?.repositories, loading, orderBy, orderDirection, setOrderBy, setOrderDerection, setSearchKeyword };
+    const handleFetchMore = () => {
+        
+        const canFetchMore = !loading && data?.repositories.pageInfo.hasNextPage;
+
+        if (!canFetchMore) {
+            return;
+        }
+
+        fetchMore({
+            variables: {
+                first:5,
+                after: data.repositories.pageInfo.endCursor,
+                orderBy,
+                orderDirection,
+                searchKeyword,
+            },
+        });
+    };
+
+    return {
+        repositories: data?.repositories,
+        fetchMore: handleFetchMore,
+        loading,
+        orderBy,
+        orderDirection,
+        setOrderBy,
+        setOrderDerection,
+        setSearchKeyword,
+    };
 };
 
 export default useRepositories;
